@@ -1,4 +1,8 @@
-{ config, pkgs, ... }: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   imports = [
     ../../common
   ];
@@ -22,7 +26,6 @@
   };
   xdg.portal.wlr.enable = true;
   services.dbus.enable = true;
-
 
   users.users.jack.initialPassword = "password";
 }
