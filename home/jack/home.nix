@@ -26,6 +26,7 @@
 
     alejandra
     nixfmt
+    nil
     nox
   ];
   shellPackages = with pkgs; [zsh direnv starship];
