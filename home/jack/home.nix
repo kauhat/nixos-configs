@@ -40,6 +40,7 @@
     dig
     dogdns
     xh
+    rclone
 
     iftop
     bandwhich
@@ -112,9 +113,9 @@ in {
     userName = "Jack Fletcher";
     userEmail = "jackowenfletcher@gmail.com";
 
-    aliases = {
-      dotfiles = "!git -c status.showUntrackedFiles=no --git-dir=$DOTFILES/.git --work-tree=$HOME";
-    };
+    # aliases = {
+    #   dotfiles = "!git -c status.showUntrackedFiles=no --git-dir=$DOTFILES/.git --work-tree=$HOME";
+    # };
 
     lfs = {enable = true;};
 
@@ -270,8 +271,29 @@ in {
     };
   };
 
+  programs.lsd = {
+    enable = true;
+    enableAliases = true;
+  };
+
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
+
+  # TODO: Add rclone config to Nix config.
+  # TODO: Load secrets from Bitwarden CLI?
+  systemd.user.services.mount-drive-notes = {
+    Unit = {
+      Description = "Mount Google Drive notes";
+      After = [ "network-online.target" ];
+    };
+    Service = {
+      Type = "notify";
+      ExecStartPre = "/usr/bin/env mkdir -p %h/Notes";
+      ExecStart = "${pkgs.rclone}/bin/rclone --config=%h/.config/rclone/rclone.conf --vfs-cache-mode writes --ignore-checksum mount \"drive_notes:\" \"Notes\"";
+      ExecStop="/bin/fusermount -u %h/Notes/%i";
+    };
+    Install.WantedBy = [ "default.target" ];
+  };
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   home.stateVersion = "23.05";
