@@ -276,6 +276,14 @@ in {
     enableAliases = true;
   };
 
+  programs.ssh = {
+    extraConfig = ''
+      Host proxmox
+        HostName 192.168.1.69
+        User root
+    '';
+  };
+
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 
