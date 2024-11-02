@@ -292,15 +292,15 @@ in {
   systemd.user.services.mount-drive-notes = {
     Unit = {
       Description = "Mount Google Drive notes";
-      After = [ "network-online.target" ];
+      After = ["network-online.target"];
     };
     Service = {
       Type = "notify";
       ExecStartPre = "/usr/bin/env mkdir -p %h/Notes";
       ExecStart = "${pkgs.rclone}/bin/rclone --config=%h/.config/rclone/rclone.conf --vfs-cache-mode full --vfs-cache-max-age 96h --vfs-cache-max-size 4G --ignore-checksum mount \"drive_notes:\" \"Notes\"";
-      ExecStop="/bin/fusermount -u %h/Notes/%i";
+      ExecStop = "/bin/fusermount -u %h/Notes/%i";
     };
-    Install.WantedBy = [ "default.target" ];
+    Install.WantedBy = ["default.target"];
   };
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
