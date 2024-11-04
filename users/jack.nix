@@ -12,7 +12,7 @@
     # Add an admin user
     users.users.jack = {
       isNormalUser = true;
-      description = "Jack Fletcher";
+      description = "It's me, Jack!";
       extraGroups = ["networkmanager" "wheel"];
 
       openssh.authorizedKeys.keys = [

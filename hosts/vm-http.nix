@@ -8,8 +8,8 @@
   ...
 }: {
   imports = [
-    (modulesPath + "/profiles/qemu-guest.nix")
-    ./vm-tailscale.nix
+    ./base-insecure.nix
+    ./base-vm-tailscale.nix
   ];
 
   config = {
@@ -52,6 +52,7 @@
 
       virtualHosts."localhost" = {
         listen = [{port = 8080;}];
+        documentRoot = "/";
       };
     };
 
