@@ -14,7 +14,7 @@
 
   config = {
     # Provide a default hostname
-    networking.hostName = "proxmox-test";
+    networking.hostName = "lxc-http";
 
     networking.firewall.allowedTCPPorts = [80 443];
 
