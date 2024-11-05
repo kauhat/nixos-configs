@@ -7,7 +7,9 @@
   system,
   ...
 }: {
-  imports = [];
+  imports = [
+    (modulesPath + "/virtualisation/lxc-container.nix")
+  ];
 
   config = {
     # Tailscale configuration

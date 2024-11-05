@@ -27,21 +27,20 @@
       # Configure Nginx as a reverse proxy
       virtualHosts."localhost" = {
         locations."/" = {
-          proxyPass = "http://localhost:8080"; # The service you want to proxy
-
-          # proxySetHeader = {
-          #   "Host" = "$host";
-          #   "X-Real-IP" = "$remote_addr";
-          #   "X-Forwarded-For" = "$proxy_add_x_forwarded_for";
-          #   "X-Forwarded-Proto" = "http";
-          # };
-        };
-
-        locations."/test" = {
           return = "200 '<html><body>It works</body></html>'";
           extraConfig = ''
             default_type text/html;
           '';
+        };
+
+        locations."/apache/" = {
+          proxyPass = "http://localhost:8080/"; # The service you want to proxy
+          # extraConfig = ''
+          #   proxy_set_header Host $host;
+          #   proxy_set_header X-Real-IP $remote_addr;
+          #   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          #   proxy_set_header X-Forwarded-Proto $scheme;
+          # '';
         };
       };
     };
@@ -55,20 +54,5 @@
         documentRoot = "/";
       };
     };
-
-    # Create a simple index.html file
-    environment.etc."httpd/conf/httpd.conf".text = ''
-      ServerRoot "/var/www"
-      Listen 8080
-      <Directory "/var/www">
-        Options Indexes FollowSymLinks
-        AllowOverride None
-        Require all granted
-      </Directory>
-      DocumentRoot "/var/www"
-      <IfModule mime_module>
-        AddType text/html .html
-      </IfModule>
-    '';
   };
 }
