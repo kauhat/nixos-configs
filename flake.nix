@@ -25,7 +25,7 @@
     home-manager,
     nixos-generators,
     ...
-  } @ inputs: let
+  } @ attrs: let
     inherit (self) outputs;
     # Supported systems for your flake packages, shell, etc.
     systems = [
@@ -51,7 +51,7 @@
     nixosConfigurations = {
       # FIXME replace with your hostname
       workstation = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
+        specialArgs = attrs;
         modules = [
           # > Our main nixos configuration file <
           ./hosts/workstation.nix
@@ -59,10 +59,18 @@
       };
 
       lxc-http = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
+        specialArgs = attrs;
         system = "x86_64-linux";
         modules = [
           ./hosts/lxc-http.nix
+        ];
+      };
+
+      lxc-minecraft = nixpkgs.lib.nixosSystem {
+        specialArgs = attrs;
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/lxc-minecraft.nix
         ];
       };
     };
@@ -72,7 +80,7 @@
     homeConfigurations = {
       jack = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-        extraSpecialArgs = {inherit inputs outputs;};
+        extraSpecialArgs = attrs;
         modules = [
           # > Our main home-manager configuration file <
           ./home/jack/home.nix
@@ -81,14 +89,25 @@
     };
 
     packages.x86_64-linux = {
-      lxc-http = nixos-generators.nixosGenerate {
+      proxomx-lxc-minecraft = nixos-generators.nixosGenerate {
         system = "x86_64-linux";
         format = "proxmox-lxc";
+
+        modules = [
+          ./hosts/lxc-minecraft.nix
+        ];
+      };
+
+      proxomx-lxc-http = nixos-generators.nixosGenerate {
+        system = "x86_64-linux";
+        format = "proxmox-lxc";
+
         modules = [
           ./hosts/lxc-http.nix
         ];
       };
-      vm-http = nixos-generators.nixosGenerate {
+
+      proxomx-vm-http = nixos-generators.nixosGenerate {
         system = "x86_64-linux";
         format = "proxmox";
         modules = [
