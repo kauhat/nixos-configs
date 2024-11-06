@@ -18,12 +18,24 @@
 
     networking.firewall.allowedTCPPorts = [80 443 25565];
 
+    # Create the Cloudflare API key file
+
+    # Update Cloudflare service DNS record.
+    services.cloudflare-dyndns = {
+      enable = true;
+      apiTokenFile = "/etc/secrets/cloudflare_api_key";
+      domains = [
+        "minecraft.services.kauh.at"
+      ];
+    };
+
+    # Minecraft containers...
     virtualisation.oci-containers.backend = "podman";
     virtualisation.oci-containers.containers = {
       "minecraft_e2e" = {
         image = "itzg/minecraft-server:java8-multiarch";
         autoStart = true;
-        ports = ["127.0.0.1:25565:25565"];
+        ports = ["25565:25565"];
         volumes = [
           "/Minecraft/e2e:/data:Z"
         ];
