@@ -24,6 +24,7 @@
     nixpkgs,
     home-manager,
     nixos-generators,
+    ragenix,
     ...
   } @ attrs: let
     inherit (self) outputs;
@@ -115,5 +116,19 @@
         ];
       };
     };
+
+    devShells = forAllSystems (
+      system: let
+        pkgs = nixpkgs.legacyPackages.${system};
+      in {
+        default = pkgs.mkShell {
+          packages = [
+            pkgs.rsync
+            pkgs.nixos-rebuild
+            ragenix.packages."${system}".ragenix
+          ];
+        };
+      }
+    );
   };
 }
