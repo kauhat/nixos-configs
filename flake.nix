@@ -83,7 +83,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = attrs;
         modules = [
-          # > Our main home-manager configuration file <
+          # TODO: Add base personal home file.
           ./home/jack/home.nix
         ];
       };
@@ -92,7 +92,6 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = attrs;
         modules = [
-          # > Our main home-manager configuration file <
           ./home/jack/home.nix
           ./modules/mount-gdrive-notes.nix
         ];
