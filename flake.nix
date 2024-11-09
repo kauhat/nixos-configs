@@ -87,6 +87,16 @@
           ./home/jack/home.nix
         ];
       };
+
+      jack-full = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+        extraSpecialArgs = attrs;
+        modules = [
+          # > Our main home-manager configuration file <
+          ./home/jack/home.nix
+          ./modules/mount-gdrive-notes.nix
+        ];
+      };
     };
 
     packages.x86_64-linux = {
