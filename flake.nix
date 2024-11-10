@@ -46,8 +46,7 @@
     #
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
-      # FIXME replace with your hostname
-      workstation = nixpkgs.lib.nixosSystem {
+      default = nixpkgs.lib.nixosSystem {
         specialArgs = attrs;
         modules = [
           ./hosts/workstation.nix

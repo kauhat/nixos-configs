@@ -23,13 +23,15 @@ in {
   config = mkIf config.services.mountGdriveNotes.enable {
     # Scripts to manage remote auth.
     home.packages = [
-      (pkgs.writeShellScriptBin "${scriptPrefix}-create-rclone-remote" ''
+      (pkgs.writeShellScriptBin "${scriptPrefix}-create-remote" ''
         #!/bin/sh
         rclone config create ${remoteName} ${remoteType}
       '')
-      (pkgs.writeShellScriptBin "${scriptPrefix}-authorize-rclone-remote" ''
+
+      (pkgs.writeShellScriptBin "${scriptPrefix}-reconnect-remote" ''
         #!/bin/sh
-        rclone authorize ${remoteType} ${remoteName}
+        # rclone authorize ${remoteType}
+        rclone config reconnect ${remoteName}:
       '')
     ];
 

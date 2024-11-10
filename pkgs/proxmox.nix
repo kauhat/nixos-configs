@@ -36,6 +36,10 @@ in
     description = "Proxmox LXC and VM configurations";
 
     buildInputs = [
+      nixos-generators
+    ];
+
+    packages = [
       proxomx-lxc-minecraft
       proxomx-lxc-http
       proxomx-vm-http
