@@ -113,33 +113,5 @@
         };
       }
     );
-
-    # packages.x86_64-linux = {
-    #   proxomx-lxc-minecraft = nixos-generators.nixosGenerate {
-    #     system = "x86_64-linux";
-    #     format = "proxmox-lxc";
-
-    #     modules = [
-    #       ./hosts/lxc-minecraft.nix
-    #     ];
-    #   };
-
-    #   proxomx-lxc-http = nixos-generators.nixosGenerate {
-    #     system = "x86_64-linux";
-    #     format = "proxmox-lxc";
-
-    #     modules = [
-    #       ./hosts/lxc-http.nix
-    #     ];
-    #   };
-
-    #   proxomx-vm-http = nixos-generators.nixosGenerate {
-    #     system = "x86_64-linux";
-    #     format = "proxmox";
-    #     modules = [
-    #       ./hosts/vm-http.nix
-    #     ];
-    #   };
-    # };
   };
 }
