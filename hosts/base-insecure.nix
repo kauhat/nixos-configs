@@ -32,7 +32,6 @@
       vim # for emergencies
       git # for pulling nix flakes
       python3 # for ansible
-      rsync
     ];
 
     # Don't ask for passwords
