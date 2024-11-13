@@ -50,30 +50,12 @@ in {
       # theme = "dracula";
 
       plugins = [
-        # Manually installed below...
-        #
-        # "zsh-aliases-exa"
-        # "you-should-use"
-        # "fzf-tab"
-
-        "ssh-agent"
         "vscode"
-
-        "fzf"
-        "ripgrep"
-        "copypath"
-        "copyfile"
-        "copybuffer"
-
-        "gitfast"
-        "git-lfs"
         "gh"
 
         "ubuntu"
         "docker"
-
         "rust"
-
         "yarn"
         "composer"
         "laravel"
@@ -82,15 +64,6 @@ in {
     };
 
     plugins = [
-      {
-        name = "fzf-tab";
-        src = pkgs.fetchFromGitHub {
-          owner = "Aloxaf";
-          repo = "fzf-tab";
-          rev = "190500bf1de6a89416e2a74470d3b5cceab102ba";
-          sha256 = "1dipsy0s67fr47ig5559bcp1h5yn8rdjshhs8zsq7j8plvvh99qb";
-        };
-      }
       # {
       #   name = "zsh-syntax-highlighting";
       #   src = pkgs.fetchFromGitHub {
