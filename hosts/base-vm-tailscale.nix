@@ -37,12 +37,8 @@
     services.tailscale = {
       enable = true;
       openFirewall = true;
-      authKeyFile = "/etc/tailscale/auth_key"; # Path to the hardcoded Tailscale key file
+      authKeyFile = ../secrets/tailscaleAuth.age;
     };
-
-    # Create the Tailscale key file
-    environment.etc."tailscale/auth_key".text = "tskey-auth-kbUqToUTGV11CNTRL-FeUjYxdytM79xmBXRCTLV7oP1qjj5cRJ";
-    environment.etc."tailscale/auth_key".mode = "0600";
 
     # Default filesystem
     fileSystems."/" = lib.mkDefault {
