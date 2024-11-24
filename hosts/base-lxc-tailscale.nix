@@ -17,7 +17,7 @@
       enable = true;
       openFirewall = true;
       interfaceName = "userspace-networking";
-      authKeyFile = ../secrets/tailscaleAuth.age;
+      # authKeyFile = ../../nixos-configs-private/secrets/tailscaleAuth.age;
     };
   };
 }

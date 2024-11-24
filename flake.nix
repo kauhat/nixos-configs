@@ -57,15 +57,6 @@
         specialArgs = attrs;
         modules = [
           ./hosts/workstation.nix
-          ({
-            config,
-            lib,
-            pkgs,
-            private-configs,
-            ...
-          }: {
-            config = {environment.etc.test = private-configs.secrets."tailscaleAuth.age";};
-          })
         ];
       };
 
