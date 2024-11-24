@@ -1,5 +1,5 @@
 {
-  description = "Jack's Nix config";
+  description = "Jack's public Nix config";
 
   inputs = {
     # Nixpkgs
@@ -17,6 +17,13 @@
     };
 
     ragenix.url = "github:yaxitech/ragenix";
+
+    # Import the private flake (adjust path as needed)
+    # private-configs = {
+    #   url = "git+ssh://git@github.com/kauhat/nixos-configs-private.git?ref=main";
+    #   # url = "path:../nixos-configs-private";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
   outputs = {
@@ -50,6 +57,15 @@
         specialArgs = attrs;
         modules = [
           ./hosts/workstation.nix
+          ({
+            config,
+            lib,
+            pkgs,
+            private-configs,
+            ...
+          }: {
+            config = {environment.etc.test = private-configs.secrets."tailscaleAuth.age";};
+          })
         ];
       };
 

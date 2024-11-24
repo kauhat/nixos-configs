@@ -104,7 +104,6 @@ in {
     syntaxHighlighting.enable = true;
     history.extended = true;
 
-
     oh-my-zsh = {
       enable = true;
 
