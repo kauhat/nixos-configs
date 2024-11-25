@@ -17,13 +17,6 @@
     };
 
     ragenix.url = "github:yaxitech/ragenix";
-
-    # Import the private flake (adjust path as needed)
-    # private-configs = {
-    #   url = "git+ssh://git@github.com/kauhat/nixos-configs-private.git?ref=main";
-    #   # url = "path:../nixos-configs-private";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
   };
 
   outputs = {
@@ -42,6 +35,9 @@
     ];
     forAllSystems = nixpkgs.lib.genAttrs systems;
   in {
+    # configHelpers.systems = systems;
+    # configHelpers.forAllSystems = forAllSystems;
+
     # Your custom packages
     # Accessible through 'nix build', 'nix shell', etc
     packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
