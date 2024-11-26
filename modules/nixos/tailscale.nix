@@ -1,4 +1,3 @@
-# A base VM with some networking utilities...
 {
   config,
   pkgs,
@@ -8,7 +7,6 @@
   ...
 }: {
   imports = [
-    (modulesPath + "/virtualisation/lxc-container.nix")
   ];
 
   config = {
@@ -16,7 +14,6 @@
     services.tailscale = {
       enable = true;
       openFirewall = true;
-      interfaceName = "userspace-networking";
       # authKeyFile = ../../nixos-configs-private/secrets/tailscaleAuth.age;
     };
   };
