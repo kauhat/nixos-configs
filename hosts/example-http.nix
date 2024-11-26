@@ -9,13 +9,9 @@
 }: {
   imports = [
     ./base-insecure.nix
-    ./base-lxc-tailscale.nix
   ];
 
   config = {
-    # Provide a default hostname
-    networking.hostName = "lxc-http";
-
     networking.firewall.allowedTCPPorts = [80 443];
 
     # HTTP reverse proxy

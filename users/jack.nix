@@ -15,7 +15,6 @@
       isNormalUser = true;
       description = "It's me, Jack!";
       extraGroups = ["networkmanager" "wheel"];
-      # shell = pkgs.zsh;
 
       openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPO4HOkIIuHnAhukRppCJ4lWpR/XfT77cO4b9fFVz2cu jack@jackspc-bazzite"

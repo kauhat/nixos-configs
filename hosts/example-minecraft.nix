@@ -11,23 +11,19 @@
 in {
   imports = [
     ./base-insecure.nix
-    ./base-lxc-tailscale.nix
   ];
 
   config = {
-    # Provide a default hostname
-    networking.hostName = "lxc-minecraft";
-
     networking.firewall.allowedTCPPorts = [80 443 25565];
-
-    # Create the Cloudflare API key file
 
     # Update Cloudflare service DNS record...
     services.cloudflare-dyndns = {
       enable = true;
       domains = [
-        "minecraft.services.kauh.at"
+        "minecraft.example.com"
       ];
+
+      # apiTokenFile = ../../nixos-configs-private/secrets/cloudflareDdns.age;
     };
 
     # Minecraft containers...
@@ -42,7 +38,6 @@ in {
           "/etc/gate/config.yml:/config.yml"
         ];
       };
-
 
       "minecraft_vanilla" = {
         image = "itzg/minecraft-server:stable";

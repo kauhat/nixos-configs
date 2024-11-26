@@ -56,19 +56,21 @@
         ];
       };
 
-      lxc-http = nixpkgs.lib.nixosSystem {
+      lxc-example-http = nixpkgs.lib.nixosSystem {
         specialArgs = attrs;
         system = "x86_64-linux";
         modules = [
-          ./hosts/lxc-http.nix
+          ./hosts/base-lxc.nix
+          ./hosts/example-http.nix
         ];
       };
 
-      lxc-minecraft = nixpkgs.lib.nixosSystem {
+      lxc-example-minecraft = nixpkgs.lib.nixosSystem {
         specialArgs = attrs;
         system = "x86_64-linux";
         modules = [
-          ./hosts/lxc-minecraft.nix
+          ./hosts/base-lxc.nix
+          ./hosts/example-minecraft.nix
         ];
       };
     };
