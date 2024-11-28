@@ -1,19 +1,9 @@
-# FIXME: Build fresh containers and VMs for my server hosts.
 {
   pkgs,
   nixos-generators,
   ...
 }: let
-  proxomx-lxc-minecraft = nixos-generators.nixosGenerate {
-    system = "x86_64-linux";
-    format = "proxmox-lxc";
-
-    modules = [
-      ./hosts/lxc-minecraft.nix
-    ];
-  };
-
-  proxomx-lxc-http = nixos-generators.nixosGenerate {
+  proxomx-lxc-base = nixos-generators.nixosGenerate {
     system = "x86_64-linux";
     format = "proxmox-lxc";
 
@@ -22,7 +12,7 @@
     ];
   };
 
-  proxomx-vm-http = nixos-generators.nixosGenerate {
+  proxomx-vm-base = nixos-generators.nixosGenerate {
     system = "x86_64-linux";
     format = "proxmox";
     modules = [
@@ -40,8 +30,7 @@ in
     ];
 
     packages = [
-      proxomx-lxc-minecraft
-      proxomx-lxc-http
-      proxomx-vm-http
+      proxomx-lxc-base
+      proxomx-vm-base
     ];
   }
