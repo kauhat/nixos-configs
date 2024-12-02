@@ -10,6 +10,8 @@ in {
   # You can import other home-manager modules here
   imports = [
     ./base.nix
+    ../../modules/home-manager/gdrive-notes-mount.nix
+    ../../modules/home-manager/gdrive-notes-sync.nix
   ];
 
   home.packages = with pkgs; [
@@ -23,7 +25,6 @@ in {
     nil # Nix language server
 
     # Development and Productivity Tools
-    devbox # Dev environment manager
     tokei # Count lines of code
     tealdeer # Interactive cheat sheet
 
@@ -90,5 +91,11 @@ in {
     settings = {git_protocol = "ssh";};
   };
 
-  services.mountGdriveNotes.enable = true;
+  services.gdriveNotesMount = {
+    enable = false;
+  };
+
+  services.gdriveNotesSync = {
+    enable = true;
+  };
 }

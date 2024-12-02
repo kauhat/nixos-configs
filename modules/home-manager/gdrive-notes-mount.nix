@@ -6,21 +6,21 @@
 }:
 with lib; let
   # Define the service name and the command to run
-  serviceName = "mount-gdrive-notes";
+  serviceName = "gdrive-notes-mount";
   remoteName = "drive_notes";
   remoteType = "drive";
   scriptPrefix = "gdrive-notes";
 in {
   options = {
     # Define a boolean option to enable the service
-    services.mountGdriveNotes.enable = mkOption {
+    services.gdriveNotesMount.enable = mkOption {
       type = types.bool;
       default = false;
       description = "Enable my Gdrive ~/Notes mount service.";
     };
   };
 
-  config = mkIf config.services.mountGdriveNotes.enable {
+  config = mkIf config.services.gdriveNotesMount.enable {
     # Scripts to manage remote auth.
     home.packages = [
       (pkgs.writeShellScriptBin "${scriptPrefix}-create-remote" ''
