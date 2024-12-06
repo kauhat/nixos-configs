@@ -27,6 +27,7 @@ in {
     # Development and Productivity Tools
     tokei # Count lines of code
     tealdeer # Interactive cheat sheet
+    devbox # Setup environments
 
     # Networking Tools
     dig # DNS client
