@@ -129,15 +129,15 @@ in {
           sha256 = "1357hygrjwj5vd4cjdvxzrx967f1d2dbqm2rskbz5z1q6jri1hm3";
         }; # e.g., nix-prefetch-url --unpack https://github.com/marlonrichert/zsh-autocomplete/archive/762afacbf227ecd173e899d10a28a478b4c84a3f.tar.gz
       }
-      {
-        name = "fzf-tab";
-        src = pkgs.fetchFromGitHub {
-          owner = "Aloxaf";
-          repo = "fzf-tab";
-          rev = "190500bf1de6a89416e2a74470d3b5cceab102ba";
-          sha256 = "1dipsy0s67fr47ig5559bcp1h5yn8rdjshhs8zsq7j8plvvh99qb";
-        };
-      }
+      # {
+      #   name = "fzf-tab";
+      #   src = pkgs.fetchFromGitHub {
+      #     owner = "Aloxaf";
+      #     repo = "fzf-tab";
+      #     rev = "190500bf1de6a89416e2a74470d3b5cceab102ba";
+      #     sha256 = "1dipsy0s67fr47ig5559bcp1h5yn8rdjshhs8zsq7j8plvvh99qb";
+      #   };
+      # }
     ];
 
     # initExtra = ''
