@@ -56,6 +56,14 @@
         ];
       };
 
+      lxc-base = nixpkgs.lib.nixosSystem {
+        specialArgs = attrs;
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/base-lxc.nix
+        ];
+      };
+
       lxc-example-http = nixpkgs.lib.nixosSystem {
         specialArgs = attrs;
         system = "x86_64-linux";
