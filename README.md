@@ -1,5 +1,5 @@
-## Deploy Minecraft server
+# Jack's public NixOS config
 
-```sh
-nixos-rebuild --target-host lxc-minecraft.home --use-remote-sudo switch --flake .#lxc-minecraft
-```
+*This is a mess, and still very much a work in progress.*
+
+My public configuration contains examples and reuseable modules, and is imported by my private NixOS configuration.
