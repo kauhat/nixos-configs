@@ -80,6 +80,21 @@
           ./home/jack/extended.nix
         ];
       };
+
+      "jack-arm" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.aarch64-linux;
+        extraSpecialArgs = attrs;
+        modules = [
+          ./home/jack/base.nix
+        ];
+      };
+
+      # FIXME replace with your username@hostname
+      "your-username@your-hostname" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = attrs;
+        modules = [];
+      };
     };
 
     # Development shells
