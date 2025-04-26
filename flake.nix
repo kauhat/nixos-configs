@@ -15,8 +15,6 @@
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    ragenix.url = "github:yaxitech/ragenix";
   };
 
   outputs = {
@@ -24,26 +22,32 @@
     nixpkgs,
     home-manager,
     nixos-generators,
-    ragenix,
     ...
   } @ attrs: let
     inherit (self) outputs;
-    systems = [
+
+    # Define the architectures for which we'll build packages and configurations.
+    supportedSystems = [
       "aarch64-linux"
       "i686-linux"
       "x86_64-linux"
     ];
-    forAllSystems = nixpkgs.lib.genAttrs systems;
+
+    # Helper function to create an attribute set that applies to all supported systems.
+    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
   in {
-    # configHelpers.systems = systems;
-    # configHelpers.forAllSystems = forAllSystems;
+    # Expose the supportedSystems list
+    supportedSystems = supportedSystems;
 
     # Your custom packages
     # Accessible through 'nix build', 'nix shell', etc
     packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
-
-    # Formatter for your nix files, available through 'nix fmt'
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
+
+    #
+    nixosModules = {
+      base-lxc = ./hosts/base-lxc.nix;
+    };
 
     # NixOS configurations
     #
@@ -53,24 +57,6 @@
         specialArgs = attrs;
         modules = [
           ./hosts/workstation.nix
-        ];
-      };
-
-      lxc-example-http = nixpkgs.lib.nixosSystem {
-        specialArgs = attrs;
-        system = "x86_64-linux";
-        modules = [
-          ./hosts/base-lxc.nix
-          ./hosts/example-http.nix
-        ];
-      };
-
-      lxc-example-minecraft = nixpkgs.lib.nixosSystem {
-        specialArgs = attrs;
-        system = "x86_64-linux";
-        modules = [
-          ./hosts/base-lxc.nix
-          ./hosts/example-minecraft.nix
         ];
       };
     };
@@ -112,16 +98,19 @@
     };
 
     # Development shells
+    #
+    # Available through 'nix develop'
     devShells = forAllSystems (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         default = pkgs.mkShell {
-          packages = [
-            pkgs.rsync
-            pkgs.nixos-rebuild
-            ragenix.packages."${system}".ragenix
-          ];
+          nativeBuildInputs = with pkgs; [wget bat restic];
+          # packages = [
+          #   pkgs.rsync
+          #   pkgs.nixos-rebuild
+          #   ragenix.packages."${system}".ragenix
+          # ];
         };
       }
     );
