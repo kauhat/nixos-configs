@@ -99,7 +99,7 @@
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/base.nix
+          ./home/jack/extended.nix
         ];
       };
 
