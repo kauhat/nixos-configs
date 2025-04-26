@@ -96,6 +96,10 @@ in {
     settings = {git_protocol = "ssh";};
   };
 
+  services.ssh-agent = {
+    enable = true;
+  };
+
   services.gdriveNotesMount = {
     enable = false;
   };
