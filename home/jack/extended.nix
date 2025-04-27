@@ -4,6 +4,7 @@
   lib,
   config,
   pkgs,
+  devbox,
   ...
 }: let
 in {
@@ -27,7 +28,7 @@ in {
     # Development and Productivity Tools
     tokei # Count lines of code
     tealdeer # Interactive cheat sheet
-    devbox # Setup environments
+    devbox
 
     # Networking Tools
     dig # DNS client
