@@ -28,7 +28,7 @@ in {
     # Development and Productivity Tools
     tokei # Count lines of code
     tealdeer # Interactive cheat sheet
-    devbox
+    devbox.packages.${pkgs.system}.default
 
     # Networking Tools
     dig # DNS client
