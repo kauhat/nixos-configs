@@ -85,15 +85,9 @@ in {
 
   programs.home-manager.enable = true;
 
-  programs.bash = {
-    enable = false;
-    initExtra = ''
-      # # Auto launch zsh.
-      # if [ "$\{ZSH_VERSION:-unset}" = "unset" ] ; then
-      #     export SHELL=/bin/zsh
-      #     exec /bin/zsh -l
-      # fi
-    '';
+  # Shells...
+  programs.fish = {
+    enable = true;
   };
 
   programs.zsh = {
