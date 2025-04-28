@@ -8,6 +8,7 @@
   ...
 }: {
   imports = [
+    ./base-insecure.nix
     (modulesPath + "/virtualisation/lxc-container.nix")
   ];
 

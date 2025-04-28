@@ -29,7 +29,7 @@
     # Define the architectures for which we'll build packages and configurations.
     supportedSystems = [
       "aarch64-linux"
-      "i686-linux"
+      # "i686-linux"
       "x86_64-linux"
     ];
 
