@@ -3,16 +3,24 @@
 
   inputs = {
     # Nixpkgs
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # Home manager
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      url = "github:nix-community/home-manager/release-24.11";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Generators
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Devbox
+    devbox = {
+      url = "github:jetify-com/devbox";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -22,6 +30,7 @@
     nixpkgs,
     home-manager,
     nixos-generators,
+    devbox,
     ...
   } @ attrs: let
     inherit (self) outputs;
@@ -85,7 +94,7 @@
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/base.nix
+          ./home/jack/extended.nix
         ];
       };
 
@@ -105,7 +114,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [wget bat restic];
+          nativeBuildInputs = with pkgs; [wget bat restic devbox.defaultPackage.${system}];
           # packages = [
           #   pkgs.rsync
           #   pkgs.nixos-rebuild
