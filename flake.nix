@@ -90,6 +90,17 @@
         ];
       };
 
+      "jack-toolbox" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = attrs;
+        modules = [
+          ./home/jack/extended.nix
+          {
+            home.homeDirectory = nixpkgs.lib.mkForce "/home/jack/Toolbox";
+          }
+        ];
+      };
+
       "jack-arm" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
         extraSpecialArgs = attrs;
