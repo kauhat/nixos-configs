@@ -125,7 +125,13 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [wget bat restic devbox.defaultPackage.${system}];
+          nativeBuildInputs = with pkgs; [
+            wget
+            bat
+            restic
+            devbox.defaultPackage.${system}
+          ];
+
           # packages = [
           #   pkgs.rsync
           #   pkgs.nixos-rebuild

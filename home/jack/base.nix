@@ -74,13 +74,9 @@ in {
     zsh # Interactive shell
     starship # Customizable prompt
     direnv # Setup directory env vars
-    zoxide # Smarter cd command
 
     # Networking tools
     wget # HTTP downloads
-
-    # Remote Access
-    mosh # Mobile shell
   ];
 
   programs.home-manager.enable = true;
@@ -134,7 +130,7 @@ in {
   };
 
   programs.fzf = {
-    enableZshIntegration = true;
+    # enableZshIntegration = true;
   };
 
   programs.lsd = {
