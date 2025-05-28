@@ -99,6 +99,7 @@
           ./home/jack/extended.nix
           {
             home.homeDirectory = nixpkgs.lib.mkForce "/home/jack/Toolbox";
+            services.gdriveNotesSync.enabled = nixpkgs.lib.mkForce true;
           }
         ];
       };

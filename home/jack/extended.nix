@@ -91,6 +91,31 @@ in {
   };
 
   services.gdriveNotesSync = {
+    enable = false;
+  };
+
+  services.syncthing = {
     enable = true;
+    # group = "jack";
+    # user = "jack";
+    # dataDir = "/home/jack/Documents";
+    # configDir = "/home/jack/Documents/.config/syncthing";
+    settings = {
+      devices = {
+        # "device1" = { id = "DEVICE-ID-GOES-HERE"; };
+        # "device2" = { id = "DEVICE-ID-GOES-HERE"; };
+      };
+      folders = {
+        "Documents" = {
+          path = "/home/jack/Documents";
+          # devices = [ "device1" "device2" ];
+        };
+        "Notes" = {
+          path = "/home/jack/Notes";
+          # devices = [ "device1" ];
+          # ignorePerms = false;
+        };
+      };
+    };
   };
 }
