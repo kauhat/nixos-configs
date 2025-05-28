@@ -40,6 +40,7 @@ in {
     iftop # Bandwidth usage
     bandwhich # Process bandwidth
     bottom # Resource monitor
+    isd # Systemd TUI
 
     # Terminal Multiplexers
     tmux # Terminal multiplexer
