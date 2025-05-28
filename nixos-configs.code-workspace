@@ -7,5 +7,14 @@
 			"path": "../nixos-configs-private"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"nixEnvSelector.nixFile": "../nixos-configs-private/flake.nix",
+		"opentofu.codelens.referenceCount": true,
+		"opentofu.experimentalFeatures.validateOnSave": true
+	},
+	"extensions": {
+		"recommendations": [
+			"arrterian.nix-env-selector"
+		]
+	}
 }
