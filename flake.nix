@@ -50,9 +50,11 @@
 
     # Your custom packages
     # Accessible through 'nix build', 'nix shell', etc
-    packages = forAllSystems (system: import ./pkgs ({
-      pkgs = nixpkgs.legacyPackages.${system};
-  } // attrs ));
+    packages = forAllSystems (system:
+      import ./pkgs ({
+          pkgs = nixpkgs.legacyPackages.${system};
+        }
+        // attrs));
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
     #
@@ -99,7 +101,7 @@
           ./home/jack/extended.nix
           {
             home.homeDirectory = nixpkgs.lib.mkForce "/home/jack/Toolbox";
-            services.gdriveNotesSync.enabled = nixpkgs.lib.mkForce true;
+            # home.jack.services.gdriveNotesSync.enabled = nixpkgs.lib.mkForce true;
           }
         ];
       };
