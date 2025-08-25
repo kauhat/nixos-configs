@@ -44,7 +44,6 @@ in {
 
     # Terminal Multiplexers
     tmux # Terminal multiplexer
-    zellij # Productive terminal workspace
     byobu # Terminal window manager
   ];
 
@@ -76,6 +75,10 @@ in {
       #   };
       # }
     ];
+  };
+
+  programs.zellij = {
+    enable = true;
   };
 
   programs.gh = {

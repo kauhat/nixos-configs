@@ -100,8 +100,7 @@
         modules = [
           ./home/jack/extended.nix
           {
-            home.homeDirectory = nixpkgs.lib.mkForce "/home/jack/Toolbox";
-            # home.jack.services.gdriveNotesSync.enabled = nixpkgs.lib.mkForce true;
+            home.homeDirectory = "/home/jack/Toolbox";
           }
         ];
       };
@@ -134,14 +133,15 @@
             wget
             bat
             restic
-            devbox.defaultPackage.${system}
           ];
 
-          # packages = [
-          #   pkgs.rsync
-          #   pkgs.nixos-rebuild
-          #   ragenix.packages."${system}".ragenix
-          # ];
+          packages = [
+            # devbox
+            # devbox.defaultPackage.${system}
+            #   pkgs.rsync
+            #   pkgs.nixos-rebuild
+            #   ragenix.packages."${system}".ragenix
+          ];
         };
       }
     );

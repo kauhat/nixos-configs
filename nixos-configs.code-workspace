@@ -10,11 +10,25 @@
 	"settings": {
 		"nixEnvSelector.nixFile": "../nixos-configs-private/flake.nix",
 		"opentofu.codelens.referenceCount": true,
-		"opentofu.experimentalFeatures.validateOnSave": true
+		"opentofu.experimentalFeatures.validateOnSave": true,
+		"direnv.restart.automatic": true,
+		"nix.enableLanguageServer": true,
+		"nix.serverPath": "nil",
+		"nix.serverSettings": {
+			"nil": {
+				"formatting": {
+					"command": [
+						"alejandra"
+					],
+				},
+			},
+		}
 	},
 	"extensions": {
 		"recommendations": [
-			"arrterian.nix-env-selector"
+			"mkhl.direnv",
+			"bbenoist.nix",
+			"jnoortheen.nix-ide"
 		]
 	}
 }
