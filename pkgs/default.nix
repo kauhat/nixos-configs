@@ -3,4 +3,5 @@
 {pkgs, ...} @ args: {
   # example = pkgs.callPackage ./example { };
   proxmox-nixos-examples = pkgs.callPackage ./proxmox-nixos-examples.nix args;
+  toolbx-image = pkgs.callPackage ./toolbx-image.nix args;
 }
