@@ -35,11 +35,6 @@
 
     programs.ssh.startAgent = true;
 
-    # Add insecure password.
-    users.users.jack = {
-      initialHashedPassword = "$y$j9T$Rsod1dsxNMq1cnS7YpUey/$9h03jP666xGpwGqTzfHV5/SenSory9cbFAbucrP3IlD";
-    };
-
     system.stateVersion = lib.mkDefault "24.05";
   };
 }

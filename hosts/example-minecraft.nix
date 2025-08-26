@@ -10,7 +10,7 @@
   networkName = "minecraft-bridge";
 in {
   imports = [
-    ./base-insecure.nix
+    ./base.nix
   ];
 
   config = {

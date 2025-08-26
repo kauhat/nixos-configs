@@ -8,7 +8,7 @@
   ...
 }: {
   imports = [
-    ./base-insecure.nix
+    ./base.nix
   ];
 
   config = {

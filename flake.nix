@@ -48,60 +48,58 @@
     # Expose the supportedSystems list
     supportedSystems = supportedSystems;
 
-    # Your custom packages
-    # Accessible through 'nix build', 'nix shell', etc
+    #
     packages = forAllSystems (system:
       import ./pkgs ({
           pkgs = nixpkgs.legacyPackages.${system};
         }
         // attrs));
+
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
-    # {{/* Add apps output */}}
-    apps = forAllSystems (system: {
-      proxmox-nixos-examples = {
-        type = "app";
-        program = "${nixpkgs.writeShellScript "run-proxmox-examples" ''
-          echo "This is a collection of Proxmox examples.  See the packages output for the actual configurations."
-          echo "You can find the generated configurations in the packages output."
-          echo "To use them, import this flake and access the 'proxmox-nixos-examples' package."
-        ''}";
-      };
-      toolbx-image = {
-        type = "app";
-        program = "${nixpkgs.writeShellScript "run-toolbx-image" ''
-          echo "This will build a docker image based on your workstation configuration."
-          echo "You can find the image definition in the packages output."
-          echo "To use it, import this flake and access the 'toolbx-image' package."
-        ''}";
-      };
-    });
-
-    # {{/* Add overlays output */}}
-    overlays = {
-      default = final: prev: {
-        jackPublic = {
-          proxmox-nixos-examples = self.packages.x86_64-linux.proxmox-nixos-examples;
-          toolbx-image = self.packages.x86_64-linux.toolbx-image;
-        };
-      };
-    };
+    #
+    # apps = forAllSystems (system: {
+    #   proxmox-templates = {
+    #     type = "app";
+    #     program = "${nixpkgs.writeShellScript "run-proxmox-examples" ''
+    #       echo "This is a collection of Proxmox examples.  See the packages output for the actual configurations."
+    #       echo "You can find the generated configurations in the packages output."
+    #       echo "To use them, import this flake and access the 'proxmox-templates' package."
+    #     ''}";
+    #   };
+    #   toolbx-image = {
+    #     type = "app";
+    #     program = "${nixpkgs.writeShellScript "run-toolbx-image" ''
+    #       echo "This will build a docker image based on your workstation configuration."
+    #       echo "You can find the image definition in the packages output."
+    #       echo "To use it, import this flake and access the 'toolbx-image' package."
+    #     ''}";
+    #   };
+    # });
 
     #
-    nixosModules = {
-      base-lxc = ./hosts/base-lxc.nix;
-    };
+    # overlays = {
+    #   default = final: prev: {
+    #     jackPublic = {
+    #       proxmox-templates = self.packages.x86_64-linux.proxmox-templates;
+    #       toolbx-image = self.packages.x86_64-linux.toolbx-image;
+    #     };
+    #   };
+    # };
+
+    #
+    nixosModules = {};
 
     # NixOS configurations
     #
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
-      default = nixpkgs.lib.nixosSystem {
-        specialArgs = attrs;
-        modules = [
-          ./hosts/workstation.nix
-        ];
-      };
+      # default = nixpkgs.lib.nixosSystem {
+      #   specialArgs = attrs;
+      #   modules = [
+      #     ./hosts/base.nix
+      #   ];
+      # };
     };
 
     # Home-manager configurations
@@ -166,7 +164,6 @@
           ];
 
           packages = [
-            
             # devbox
             # devbox.defaultPackage.${system}
             #   pkgs.rsync
