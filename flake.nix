@@ -88,7 +88,9 @@
     # };
 
     #
-    nixosModules = {};
+    nixosModules = {
+      template-lxc = import ./hosts/template-lxc.nix;
+    };
 
     # NixOS configurations
     #
