@@ -13,28 +13,22 @@
   ];
 
   config = {
-    # Provide a default hostname
-    # networking.hostName = lib.mkDefault "nixos-vm-base";
-
-    # Enable QEMU Guest for Proxmox
+    # Enable QEMU Guest Agent for Proxmox/VMware integration
     services.qemuGuest.enable = lib.mkDefault true;
 
-    # Use the boot drive for grub
-    # boot.loader.grub.enable = lib.mkDefault true;
-    # boot.loader.grub.devices = ["nodev"];
+    # Configure the bootloader (GRUB)
+    # boot.loader.grub = {
+    #   enable = true;
+    #   devices = [ "nodev" ]; # Use this for disk images
+    # };
 
-    # boot.growPartition = lib.mkDefault true;
-
-    # # Default filesystem
-    # fileSystems."/" = lib.mkDefault {
-    #   device = "/dev/disk/by-label/nixos";
-    #   autoResize = true;
+    # # Set up the default filesystem for a VM image
+    # fileSystems."/" = {
+    #   device = lib.mkDefault "/dev/disk/by-label/nixos";
     #   fsType = "ext4";
     # };
 
-    # system.build.tarball = {
-    #   format = "xz";
-    #   compressionCommand = "${pkgs.xz}/bin/xz -T 0 -c";
-    # };
+    # Automatically grow the root partition to use all available space
+    boot.growPartition = lib.mkDefault true;
   };
 }

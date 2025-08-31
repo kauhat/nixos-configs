@@ -13,21 +13,16 @@
   ];
 
   config = {
+    # Specify that this is a container
     boot.isContainer = true;
 
-    # Supress systemd units that don't work because of LXC
+    # Suppress systemd units that are irrelevant in a container
     systemd.suppressedSystemUnits = [
       "dev-mqueue.mount"
       "sys-kernel-debug.mount"
       "sys-fs-fuse-connections.mount"
+      "proc-sys-fs-binfmt_misc.mount"
+      "set-kernel-parameters.service"
     ];
-
-    # Provide a default hostname
-    # networking.hostName = lib.mkDefault "nixos-lxc-base";
-
-    # system.build.tarball = {
-    #   format = "xz";
-    #   compressionCommand = "${pkgs.xz}/bin/xz -T 0 -c";
-    # };
   };
 }
