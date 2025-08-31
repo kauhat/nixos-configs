@@ -9,6 +9,7 @@
 {
   pkgs,
   nixos-generators,
+  self,
   ...
 }: let
   proxomx-lxc-base = nixos-generators.nixosGenerate {
@@ -16,8 +17,8 @@
     format = "proxmox-lxc";
 
     modules = [
-      # ../hosts/base.nix
-      ../hosts/template-lxc.nix
+      self.outputs.nixosModules.base
+      self.outputs.nixosModules.base-lxc
     ];
   };
 
@@ -26,8 +27,8 @@
     format = "proxmox";
 
     modules = [
-      # ../hosts/base.nix
-      ../hosts/template-vm.nix
+      self.outputs.nixosModules.base
+      self.outputs.nixosModules.base-vm
     ];
   };
 in

@@ -89,7 +89,9 @@
 
     #
     nixosModules = {
-      template-lxc = import ./hosts/template-lxc.nix;
+      base = import ./modules/nixos/base.nix;
+      base-lxc = import ./modules/nixos/base-lxc.nix;
+      base-vm = import ./modules/nixos/base-vm.nix;
     };
 
     # NixOS configurations
@@ -159,7 +161,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [
+          buildInputs = with pkgs; [
             wget
             bat
             restic
@@ -168,9 +170,6 @@
           packages = [
             # devbox
             # devbox.defaultPackage.${system}
-            #   pkgs.rsync
-            #   pkgs.nixos-rebuild
-            #   ragenix.packages."${system}".ragenix
           ];
         };
       }

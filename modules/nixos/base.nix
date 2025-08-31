@@ -8,7 +8,7 @@
   ...
 }: {
   imports = [
-    ../users/jack.nix
+    ../../users/jack.nix
   ];
 
   config = {

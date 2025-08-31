@@ -8,8 +8,8 @@
   ...
 }: {
   imports = [
-    "${toString modulesPath}/virtualisation/proxmox-lxc.nix"
-    ./base.nix
+    # "${toString modulesPath}/virtualisation/proxmox-lxc.nix"
+    # ./base.nix
   ];
 
   config = {

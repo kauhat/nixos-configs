@@ -1,6 +1,7 @@
 # https://www.joshuamlee.com/nixos-proxmox-vm-images/
 {
   config,
+  outputs,
   pkgs,
   modulesPath,
   lib,
@@ -10,7 +11,7 @@
   networkName = "minecraft-bridge";
 in {
   imports = [
-    ./base.nix
+    outputs.nixosModules.base
   ];
 
   config = {

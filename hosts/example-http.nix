@@ -1,6 +1,7 @@
 # https://www.joshuamlee.com/nixos-proxmox-vm-images/
 {
   config,
+  outputs,
   pkgs,
   modulesPath,
   lib,
@@ -8,7 +9,7 @@
   ...
 }: {
   imports = [
-    ./base.nix
+    outputs.nixosModules.base
   ];
 
   config = {
