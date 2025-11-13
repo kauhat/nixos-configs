@@ -57,6 +57,8 @@
 
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
+    home-manager = forAllSystems (system: home-manager.packages.${system});
+
     #
     # apps = forAllSystems (system: {
     #   proxmox-templates = {
@@ -162,6 +164,7 @@
       in {
         default = pkgs.mkShell {
           buildInputs = with pkgs; [
+            home-manager.packages.${system}.home-manager
             wget
             bat
             restic
