@@ -165,6 +165,7 @@
         default = pkgs.mkShell {
           buildInputs = with pkgs; [
             home-manager.packages.${system}.home-manager
+            direnv
             wget
             bat
             restic
