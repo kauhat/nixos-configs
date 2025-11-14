@@ -1,5 +1,7 @@
 # Jack's personal Nix configurations
 
+[![FlakeHub](https://img.shields.io/endpoint?url=https://flakehub.com/f/kauhat/nixos-configs/badge)](https://flakehub.com/flake/kauhat/nixos-configs)
+
 This repository contains my Home Manager configs, reusable modules, and some host definitions. This flake is intended to be consumed as an input to another flake, but parts of it can be used directly. Hopefully it'll be helpful to someone. However this is very much a work in progress which is likely to change.
 
 ## Repository structure
