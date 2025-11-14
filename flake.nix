@@ -33,8 +33,6 @@
     devbox,
     ...
   } @ attrs: let
-    inherit (self) outputs;
-
     # Define the architectures for which we'll build packages and configurations.
     supportedSystems = [
       "aarch64-linux"
