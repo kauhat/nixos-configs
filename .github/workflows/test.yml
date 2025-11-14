@@ -15,5 +15,5 @@ jobs:
       - uses: "DeterminateSystems/flake-checker-action@main"
       - uses: "DeterminateSystems/determinate-nix-action@v3"
       - uses: "DeterminateSystems/magic-nix-cache-action@main"
-      - run: "nix flake show"
+      - run: "nix flake show --all-systems"
       - run: "nix flake check"
