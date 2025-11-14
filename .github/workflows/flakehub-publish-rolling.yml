@@ -1,8 +1,10 @@
-name: "Publish every Git push to main to FlakeHub"
+name: "Publish to FlakeHub"
 on:
-  push:
-    branches:
-      - "main"
+  workflow_run:
+    workflows: ["Run tests"]
+    branches: [main]
+    types:
+      - completed
 jobs:
   flakehub-publish:
     runs-on: "ubuntu-latest"
@@ -14,6 +16,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: "DeterminateSystems/determinate-nix-action@v3"
+      - uses: "cachix/cachix-action@v14"
       - uses: "DeterminateSystems/flakehub-push@main"
         with:
           name: "kauhat/nixos-configs"

@@ -1,0 +1,17 @@
+name: "Run tests"
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  test-flake:
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: "read"
+    steps:
+      - uses: "actions/checkout@v5"
+      - uses: "DeterminateSystems/flake-checker-action@main"
+      - uses: "DeterminateSystems/determinate-nix-action@v3"
+      - uses: "cachix/cachix-action@v14"
+      - run: "nix flake show"
+      - run: "nix flake check"
