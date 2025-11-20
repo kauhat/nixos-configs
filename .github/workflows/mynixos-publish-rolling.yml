@@ -1,4 +1,4 @@
-name: "Push to mynixos"
+name: "Push to MyNixOS"
 on:
   workflow_run:
     workflows: ["Run tests"]
@@ -30,11 +30,11 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Set up SSH
-        run: |
-          echo "${{ secrets.MYNIXOS_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: "${{ secrets.MYNIXOS_SSH_KEY }}"
 
-      - name: Push to mynixos
+      - name: Push to MyNixOS
         run: |
           git remote add mynixos "${{ vars.MYNIXOS_REPO_URL }}"
           git push mynixos main --force
