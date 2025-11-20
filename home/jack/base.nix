@@ -69,6 +69,7 @@ in {
     ripgrep # Regex search tool
     jq # JSON processor
     delta # Syntax-highlighting pager
+    nix-melt
 
     # Shell and environment management
     zsh # Interactive shell
