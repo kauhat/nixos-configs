@@ -55,7 +55,7 @@
 
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
-    home-manager = forAllSystems (system: home-manager.packages.${system});
+    home-manager = forAllSystems (system: home-manager.packages.${system}.home-manager);
 
     #
     # apps = forAllSystems (system: {
