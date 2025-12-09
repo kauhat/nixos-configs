@@ -145,6 +145,14 @@
         ];
       };
 
+      "jack-minimal" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = attrs;
+        modules = [
+          ./home/jack/minimal.nix
+        ];
+      };
+
       # FIXME replace with your username@hostname
       "your-username@your-hostname" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
