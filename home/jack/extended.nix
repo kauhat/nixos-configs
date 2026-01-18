@@ -15,37 +15,39 @@ in {
     ../../modules/home-manager/gdrive-notes-sync.nix
   ];
 
-  home.packages = with pkgs; [
-    # Backup and Synchronization Tools
-    restic # Efficient backup
-    rsync # File transfer and sync
-    rclone # Cloud file transfer
+  home.packages = with pkgs;
+    devbox.packages.${pkgs.system}
+    ++ [
+      # Backup and Synchronization Tools
+      restic # Efficient backup
+      rsync # File transfer and sync
+      rclone # Cloud file transfer
 
-    # Nix/NixOS
-    alejandra # Nix code formatting
-    nil # Nix language server
+      # Nix/NixOS
+      alejandra # Nix code formatting
+      nil # Nix language server
 
-    # Development and Productivity Tools
-    tokei # Count lines of code
-    tealdeer # Interactive cheat sheet
-    devbox.packages.${pkgs.system}.default
+      # Development and Productivity Tools
+      tokei # Count lines of code
+      tealdeer # Interactive cheat sheet
 
-    # Networking Tools
-    dig # DNS client
-    dogdns # DNS client
-    hurl # Scriptable HTTP client
-    xh # HTTP client
+      # Networking Tools
+      dig # DNS client
+      dogdns # DNS client
+      hurl # Scriptable HTTP client
 
-    # Monitoring and Resource Management
-    iftop # Bandwidth usage
-    bandwhich # Process bandwidth
-    bottom # Resource monitor
-    isd # Systemd TUI
+      # Monitoring and Resource Management
+      iftop # Bandwidth usage
+      bandwhich # Process bandwidth
+      bottom # Resource monitor
+      isd # Systemd TUI
+      restic
+      nix-melt
 
-    # Terminal Multiplexers
-    tmux # Terminal multiplexer
-    byobu # Terminal window manager
-  ];
+      # Terminal Multiplexers
+      tmux # Terminal multiplexer
+      byobu # Terminal window manager
+    ];
 
   programs.zsh = {
     antidote = {

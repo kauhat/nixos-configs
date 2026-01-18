@@ -122,6 +122,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
+          ./home/jack/base.nix
           ./home/jack/extended.nix
         ];
       };
@@ -130,6 +131,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
+          ./home/jack/base.nix
           ./home/jack/extended.nix
           {
             home.homeDirectory = "/home/jack/Toolbox";
@@ -137,19 +139,13 @@
         ];
       };
 
-      "jack-arm" = home-manager.lib.homeManagerConfiguration {
+      "jack@penguin" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
         extraSpecialArgs = attrs;
         modules = [
+          ./home/jack/base.nix
           ./home/jack/extended.nix
         ];
-      };
-
-      # FIXME replace with your username@hostname
-      "your-username@your-hostname" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = attrs;
-        modules = [];
       };
     };
 
@@ -161,13 +157,13 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            home-manager.packages.${system}.home-manager
-            direnv
-            wget
-            bat
-            restic
-          ];
+          buildInputs = with pkgs;
+            home-manager.packages.${system}
+            ++ [
+              yamllint
+              kube-linter
+              nodePackages.prettier
+            ];
 
           packages = [
             # devbox
