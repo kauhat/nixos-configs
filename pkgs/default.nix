@@ -4,4 +4,5 @@
   # example = pkgs.callPackage ./example { };
   proxmox-templates = pkgs.callPackage ./proxmox-templates.nix args;
   toolbx-image = pkgs.callPackage ./toolbx-image.nix args;
+  vm-images = pkgs.callPackage ./vm-images.nix args;
 }
