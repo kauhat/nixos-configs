@@ -87,6 +87,7 @@
     #   };
     # };
 
+    # NixOS modules
     #
     nixosModules = {
       base = import ./modules/nixos/base.nix;
@@ -106,6 +107,14 @@
       # };
     };
 
+    # Home-manager modules
+    #
+    homeModules = {
+      base = import ./home/jack/base.nix;
+      extended = import ./home/jack/extended.nix;
+      minimal = import ./home/jack/minimal.nix;
+    };
+
     # Home-manager configurations
     #
     # Available through 'home-manager --flake .#jack'
@@ -114,7 +123,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/base.nix
+          self.homeModules.base
         ];
       };
 
@@ -122,7 +131,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/extended.nix
+          self.homeModules.extended
         ];
       };
 
@@ -130,7 +139,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/extended.nix
+          self.homeModules.extended
           {
             home.homeDirectory = "/home/jack/Toolbox";
           }
@@ -141,7 +150,7 @@
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/extended.nix
+          self.homeModules.extended
         ];
       };
 
@@ -149,7 +158,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/minimal.nix
+          self.homeModules.minimal
         ];
       };
 
