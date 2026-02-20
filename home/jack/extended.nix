@@ -1,6 +1,5 @@
 {
   inputs,
-  outputs,
   lib,
   config,
   pkgs,
@@ -10,8 +9,8 @@
 in {
   # You can import other home-manager modules here
   imports = [
-    outputs.homeModules.base
-    outputs.nixosModules.base
+    ./base.nix
+
     ../../modules/home-manager/gdrive-notes-mount.nix
     ../../modules/home-manager/gdrive-notes-sync.nix
   ];
