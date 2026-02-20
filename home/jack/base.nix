@@ -196,7 +196,6 @@ in {
   };
 
   programs.ssh = {
-    startAgent = true;
     extraConfig = ''
       # Host proxmox
       #   HostName 192.168.1.69
