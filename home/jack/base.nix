@@ -146,11 +146,16 @@ in {
     };
   };
 
-  programs.neovim = {
+  # programs.neovim = {
+  #   enable = true;
+  #   defaultEditor = true;
+  #   viAlias = true;
+  #   vimAlias = true;
+  # };
+
+  programs.helix = {
     enable = true;
     defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
   };
 
   programs.git = {
@@ -175,7 +180,7 @@ in {
     };
 
     extraConfig = {
-      core = {editor = "nvim";};
+      core = {editor = "hx";};
       color = {ui = true;};
       push = {default = "simple";};
       pull = {ff = "only";};
