@@ -5,31 +5,31 @@
   ...
 }: let
   proxmox-lxc-base = nixpkgs.lib.nixosSystem {
-    # Use nixpkgs.lib
     system = "x86_64-linux";
-    # format = "proxmox-lxc";
 
     modules = [
+      "${nixpkgs}/nixos/modules/virtualisation/proxmox-lxc.nix"
+
       self.nixosModules.base
       self.nixosModules.base-lxc
-      self.nixosModules.users # Include the users module for the template
+      self.nixosModules.users
     ];
   };
 
   proxmox-vm-base = nixpkgs.lib.nixosSystem {
-    # Use nixpkgs.lib
     system = "x86_64-linux";
-    # format = "proxmox";
 
     modules = [
+      "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
+
       self.nixosModules.base
       self.nixosModules.base-vm
-      self.nixosModules.users # Include the users module for the template
+      self.nixosModules.users
     ];
   };
 
   proxmox-lxc-base-rootfs = proxmox-lxc-base.config.system.build.tarball;
-  proxmox-vm-base-iso = proxmox-vm-base.config.system.build.iso;
+  proxmox-vm-base-iso = proxmox-vm-base.config.system.build.image;
 in
   pkgs.stdenv.mkDerivation {
     pname = "proxmox-configurations";
@@ -46,9 +46,8 @@ in
     ];
 
     installPhase = ''
-      mkdir -p $out/lxc
-      cp -rL ${proxmox-lxc-base-rootfs} $out/lxc/base-lxc-rootfs.tar.zst
-      mkdir -p $out/vm
-      cp -rL ${proxmox-vm-base-iso} $out/vm/base-vm.iso
+      mkdir -p $out/proxmox-templates
+      cp -rL "${proxmox-lxc-base-rootfs}/*" $out/proxmox-templates
+      cp -rL "${proxmox-vm-base-iso}/*" $out/proxmox-templates
     '';
   }

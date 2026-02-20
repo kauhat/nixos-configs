@@ -14,16 +14,10 @@
 
     # Generators
     # See: https://github.com/nix-community/nixos-generators?tab=readme-ov-file#deprecated-nixos-generators
-    # nixos-generators = {
-    #   url = "github:nix-community/nixos-generators";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
 
     # Devbox
-    devbox = {
-      url = "github:jetify-com/devbox";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    devbox.url = "github:jetify-com/devbox";
+    devbox.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -33,7 +27,6 @@
     devbox,
     ...
   } @ attrs: let
-    # Define the architectures for which we'll build packages and configurations.
     supportedSystems = [
       "aarch64-linux"
       # "i686-linux"
@@ -57,35 +50,19 @@
 
     home-manager = forAllSystems (system: home-manager.packages.${system}.home-manager);
 
-    #
-    # apps = forAllSystems (system: {
-    #   proxmox-templates = {
-    #     type = "app";
-    #     program = "${nixpkgs.writeShellScript "run-proxmox-examples" ''
-    #       echo "This is a collection of Proxmox examples.  See the packages output for the actual configurations."
-    #       echo "You can find the generated configurations in the packages output."
-    #       echo "To use them, import this flake and access the 'proxmox-templates' package."
-    #     ''}";
-    #   };
-    #   toolbx-image = {
-    #     type = "app";
-    #     program = "${nixpkgs.writeShellScript "run-toolbx-image" ''
-    #       echo "This will build a docker image based on your workstation configuration."
-    #       echo "You can find the image definition in the packages output."
-    #       echo "To use it, import this flake and access the 'toolbx-image' package."
-    #     ''}";
-    #   };
-    # });
-
-    #
-    # overlays = {
-    #   default = final: prev: {
-    #     jackPublic = {
-    #       proxmox-templates = self.packages.x86_64-linux.proxmox-templates;
-    #       toolbx-image = self.packages.x86_64-linux.toolbx-image;
-    #     };
-    #   };
-    # };
+    tests = {
+      basic-test = nixpkgs.lib.makeTest {
+        name = "basic-test";
+        system = "x86_64-linux";
+        expectedToFail = false;
+        phases = ''
+          buildPhase() {
+            echo "Running test..."
+            # Add your test commands here
+          }
+        '';
+      };
+    };
 
     # NixOS modules
     #
@@ -194,5 +171,7 @@
         };
       }
     );
+
+    # Other configurations...
   };
 }
