@@ -7,10 +7,6 @@
   system,
   ...
 }: {
-  imports = [
-    ../../users/jack.nix
-  ];
-
   config = {
     # Allow remote updates with flakes and non-root users
     nix.settings.trusted-users = ["root" "@wheel"];
@@ -50,8 +46,6 @@
 
     services.timesyncd.enable = true;
     services.journald.extraConfig = "Storage=persistent";
-
-    programs.ssh.startAgent = true;
 
     system.stateVersion = lib.mkDefault "24.05";
   };

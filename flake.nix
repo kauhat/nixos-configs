@@ -93,6 +93,7 @@
       base = import ./modules/nixos/base.nix;
       base-lxc = import ./modules/nixos/base-lxc.nix;
       base-vm = import ./modules/nixos/base-vm.nix;
+      users = import ./modules/nixos/users.nix;
     };
 
     # NixOS configurations

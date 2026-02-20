@@ -8,8 +8,6 @@
   ...
 }: {
   config = {
-    # programs.zsh.enable = true;
-
     # Add an admin user
     users.users.jack = {
       isNormalUser = true;

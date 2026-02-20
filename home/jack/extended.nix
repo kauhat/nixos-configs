@@ -10,6 +10,7 @@
 in {
   # You can import other home-manager modules here
   imports = [
+    outputs.homeModules.base
     outputs.nixosModules.base
     ../../modules/home-manager/gdrive-notes-mount.nix
     ../../modules/home-manager/gdrive-notes-sync.nix

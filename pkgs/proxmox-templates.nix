@@ -1,59 +1,54 @@
-# Build some template LXC and VM images with my base NixOS install.
-# The output files of this package are intended to be uploaded to my
-# proxmox cluster.
-#
-# e.g. at:
-# /tank/templates/template/cache/
-# /tank/isos/template/iso/
-#
 {
   pkgs,
+  nixpkgs,
   self,
   ...
 }: let
-  proxmox-lxc-base = pkgs.lib.nixosSystem {
+  proxmox-lxc-base = nixpkgs.lib.nixosSystem {
+    # Use nixpkgs.lib
     system = "x86_64-linux";
-    format = "proxmox-lxc";
+    # format = "proxmox-lxc";
 
     modules = [
-      self.outputs.nixosModules.base
-      self.outputs.nixosModules.base-lxc
+      self.nixosModules.base
+      self.nixosModules.base-lxc
+      self.nixosModules.users # Include the users module for the template
     ];
   };
 
-  proxmox-lxc-base-iso = proxmox-lxc-base.config.system.build.images.iso;
-
-  proxmox-vm-base = pkgs.lib.nixosSystem {
+  proxmox-vm-base = nixpkgs.lib.nixosSystem {
+    # Use nixpkgs.lib
     system = "x86_64-linux";
-    format = "proxmox";
+    # format = "proxmox";
 
     modules = [
-      self.outputs.nixosModules.base
-      self.outputs.nixosModules.base-vm
+      self.nixosModules.base
+      self.nixosModules.base-vm
+      self.nixosModules.users # Include the users module for the template
     ];
   };
 
-  proxmox-vm-base-iso = proxmox-vm-base.config.system.build.images.iso;
-in {
-  lxc-base-iso = proxmox-lxc-base-iso;
-  vm-base-iso = proxmox-vm-base-iso;
-}
-# pkgs.stdenv.mkDerivation {
-#   pname = "proxmox-configurations";
-#   version = "1.0";
-#   description = "Proxmox LXC and VM configurations";
-#   src = null;
-#   dontUnpack = true;
-#   dontStrip = true;
-#   buildInputs = [
-#     proxmox-lxc-base-iso
-#     proxmox-vm-base-iso
-#   ];
-#   installPhase = ''
-#     mkdir -p $out/lxc
-#     ln -s ${proxmox-lxc-base-iso} $out/lxc/base-lxc.iso
-#     mkdir -p $out/vm
-#     ln -s ${proxmox-vm-base-iso} $out/vm/base-vm.iso
-#   '';
-# }
+  proxmox-lxc-base-rootfs = proxmox-lxc-base.config.system.build.tarball;
+  proxmox-vm-base-iso = proxmox-vm-base.config.system.build.iso;
+in
+  pkgs.stdenv.mkDerivation {
+    pname = "proxmox-configurations";
+    version = "1.0";
+    description = "Proxmox LXC and VM configurations";
+    src = null;
+    dontUnpack = true;
+    dontStrip = true;
+    nativeBuildInputs = [pkgs.coreutils];
 
+    buildInputs = [
+      proxmox-lxc-base-rootfs
+      proxmox-vm-base-iso
+    ];
+
+    installPhase = ''
+      mkdir -p $out/lxc
+      cp -rL ${proxmox-lxc-base-rootfs} $out/lxc/base-lxc-rootfs.tar.zst
+      mkdir -p $out/vm
+      cp -rL ${proxmox-vm-base-iso} $out/vm/base-vm.iso
+    '';
+  }
