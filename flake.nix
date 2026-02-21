@@ -114,7 +114,7 @@
         modules = [
           self.homeModules.extended
           {
-            home.homeDirectory = "/home/jack/Toolbox";
+            home.homeDirectory = nixpkgs.lib.mkForce "/home/jack/Toolbox";
           }
         ];
       };

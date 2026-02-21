@@ -165,9 +165,15 @@
         name = "Jack Fletcher";
         email = "jackowenfletcher@gmail.com";
       };
+
       init = {
         defaultBranch = "main";
       };
+
+      core = {editor = "hx";};
+      color = {ui = true;};
+      push = {default = "simple";};
+      pull = {ff = "only";};
     };
 
     # aliases = {
@@ -175,13 +181,6 @@
     # };
 
     lfs = {enable = true;};
-
-    extraConfig = {
-      core = {editor = "hx";};
-      color = {ui = true;};
-      push = {default = "simple";};
-      pull = {ff = "only";};
-    };
 
     ignores = [
       ".vscode/**"
