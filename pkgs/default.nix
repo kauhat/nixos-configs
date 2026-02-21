@@ -4,6 +4,6 @@
   # TODO: Remove?
   # toolbx-image = pkgs.callPackage ./toolbx-image.nix args;
 
-  # TODO:
+  # TODO: has issues, breaks build.
   # vm-images = pkgs.callPackage ./vm-images.nix args;
 }

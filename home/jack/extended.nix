@@ -5,8 +5,7 @@
   pkgs,
   devbox,
   ...
-}: let
-in {
+}: {
   # You can import other home-manager modules here
   imports = [
     ./base.nix

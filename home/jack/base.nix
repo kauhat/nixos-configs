@@ -6,8 +6,7 @@
   config,
   pkgs,
   ...
-}: let
-in {
+}: {
   # You can import other home-manager modules here
   imports = [
     # If you want to use modules your own flake exports (from modules/home-manager):
@@ -160,24 +159,22 @@ in {
 
   programs.git = {
     enable = true;
-    userName = "Jack Fletcher";
-    userEmail = "jackowenfletcher@gmail.com";
+
+    settings = {
+      user = {
+        name = "Jack Fletcher";
+        email = "jackowenfletcher@gmail.com";
+      };
+      init = {
+        defaultBranch = "main";
+      };
+    };
 
     # aliases = {
     #   dotfiles = "!git -c status.showUntrackedFiles=no --git-dir=$DOTFILES/.git --work-tree=$HOME";
     # };
 
     lfs = {enable = true;};
-
-    delta = {
-      enable = true;
-      options = {
-        pager = "bat";
-        dark = true;
-        navigate = true;
-        syntax-theme = "Dracula";
-      };
-    };
 
     extraConfig = {
       core = {editor = "hx";};
@@ -193,6 +190,16 @@ in {
       ".direnv"
       ".envrc"
     ];
+  };
+
+  programs.delta = {
+    enable = true;
+    options = {
+      pager = "bat";
+      dark = true;
+      navigate = true;
+      syntax-theme = "Dracula";
+    };
   };
 
   programs.direnv = {

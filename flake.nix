@@ -7,13 +7,8 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # Home manager
-    home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Generators
-    # See: https://github.com/nix-community/nixos-generators?tab=readme-ov-file#deprecated-nixos-generators
+    home-manage.url = "github:nix-community/home-manager/release-25.11";
+    home-manage.inputs.nixpkgs.follows = "nixpkgs";
 
     # Devbox
     devbox.url = "github:jetify-com/devbox";
@@ -37,7 +32,7 @@
     forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
   in {
     # Expose the supportedSystems list
-    supportedSystems = supportedSystems;
+    inherit supportedSystems;
 
     #
     packages = forAllSystems (system:
