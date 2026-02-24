@@ -80,6 +80,10 @@
     enable = true;
   };
 
+  programs.zoxide = {
+    enable = true;
+  };
+
   programs.gh = {
     enable = true;
     settings = {git_protocol = "ssh";};

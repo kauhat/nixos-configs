@@ -110,7 +110,6 @@
 
   programs.starship = {
     enable = true;
-    enableZshIntegration = true;
 
     settings = {
       add_newline = false;
@@ -123,8 +122,7 @@
   };
 
   programs.fzf = {
-    enableZshIntegration = true;
-    enableCompletion = true;
+    enable = true;
   };
 
   programs.lsd = {
