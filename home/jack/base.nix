@@ -45,8 +45,8 @@
   };
 
   home = {
-    username = "jack";
-    homeDirectory = "/home/jack";
+    username = lib.mkDefault "jack";
+    homeDirectory = lib.mkDefault "/home/jack";
   };
 
   home.packages = with pkgs; [
