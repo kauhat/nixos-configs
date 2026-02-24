@@ -67,13 +67,7 @@
     # Text processing and utilities
     ripgrep # Regex search tool
     jq # JSON processor
-    delta # Syntax-highlighting pager
     nix-melt
-
-    # Shell and environment management
-    zsh # Interactive shell
-    starship # Customizable prompt
-    direnv # Setup directory env vars
 
     # Networking tools
     wget # HTTP downloads
@@ -101,11 +95,10 @@
 
         # Use getantidote/use-omz to load specific Oh-My-Zsh plugins
         "getantidote/use-omz"
-        # Load the desired Oh-My-Zsh plugins via use-omz
         "ohmyzsh/ohmyzsh path:plugins/copypath"
         "ohmyzsh/ohmyzsh path:plugins/copyfile"
         "ohmyzsh/ohmyzsh path:plugins/copybuffer"
-        "ohmyzsh/ohmyzsh path:plugins/gitfast" # Provides the gitfast functionality
+        "ohmyzsh/ohmyzsh path:plugins/gitfast"
 
         # Add other Antidote plugins here if needed
         # Example: "zsh-users/zsh-syntax-highlighting"
@@ -130,7 +123,8 @@
   };
 
   programs.fzf = {
-    # enableZshIntegration = true;
+    enableZshIntegration = true;
+    enableCompletion = true;
   };
 
   programs.lsd = {
@@ -143,6 +137,11 @@
       tabs = "4";
       theme = "Dracula";
     };
+  };
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
   };
 
   # programs.neovim = {

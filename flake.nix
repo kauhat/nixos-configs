@@ -85,7 +85,6 @@
     homeModules = {
       base = import ./home/jack/base.nix;
       extended = import ./home/jack/extended.nix;
-      minimal = import ./home/jack/minimal.nix;
     };
 
     # Home-manager configurations
@@ -127,13 +126,13 @@
         ];
       };
 
-      "jack-minimal" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = attrs;
-        modules = [
-          self.homeModules.minimal
-        ];
-      };
+      # "jack-minimal" = home-manager.lib.homeManagerConfiguration {
+      #   pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      #   extraSpecialArgs = attrs;
+      #   modules = [
+      #     self.homeModules.minimal
+      #   ];
+      # };
 
       # FIXME replace with your username@hostname
       "your-username@your-hostname" = home-manager.lib.homeManagerConfiguration {
