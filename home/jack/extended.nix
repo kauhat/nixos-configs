@@ -84,6 +84,10 @@
     enable = true;
   };
 
+  programs.broot = {
+    enable = true;
+  };
+
   programs.gh = {
     enable = true;
     settings = {git_protocol = "ssh";};
