@@ -7,8 +7,8 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # Home manager
-    home-manage.url = "github:nix-community/home-manager/release-25.11";
-    home-manage.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # Devbox
     devbox.url = "github:jetify-com/devbox";
