@@ -19,9 +19,9 @@
     # ./nvim.nix
   ];
 
-  nix.settings = {
-    package = pkgs.nix;
+  nix.package = pkgs.nix;
 
+  nix.settings = {
     extra-substituters = [
       "https://cache.garnix.io"
       "https://cachix.cachix.org"
