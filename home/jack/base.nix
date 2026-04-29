@@ -20,6 +20,8 @@
   ];
 
   nix.settings = {
+    package = pkgs.nix;
+
     extra-substituters = [
       "https://cache.garnix.io"
       "https://cachix.cachix.org"
