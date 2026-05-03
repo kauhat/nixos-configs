@@ -203,6 +203,8 @@
       ".direnv"
       ".envrc"
     ];
+
+    signing.format = null;
   };
 
   programs.delta = {
