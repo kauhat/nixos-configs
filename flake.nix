@@ -35,7 +35,11 @@
     inherit supportedSystems;
 
     #
-    packages = forAllSystems (system:
+    packages = forAllSystems (system: {});
+
+    # Heavy packages (e.g. disk images) that `nix flake check` skips.
+    # Build them explicitly with `nix build .#<name>`.
+    legacyPackages = forAllSystems (system:
       import ./pkgs ({
           pkgs = nixpkgs.legacyPackages.${system};
         }
