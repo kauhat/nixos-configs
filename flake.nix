@@ -3,37 +3,25 @@
 
   inputs = {
     # Nixpkgs
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # Home manager
-    home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Generators
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # Devbox
-    devbox = {
-      url = "github:jetify-com/devbox";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    devbox.url = "github:jetify-com/devbox";
+    devbox.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
     self,
     nixpkgs,
     home-manager,
-    nixos-generators,
     devbox,
     ...
   } @ attrs: let
-    # Define the architectures for which we'll build packages and configurations.
     supportedSystems = [
       "aarch64-linux"
       # "i686-linux"
@@ -44,7 +32,7 @@
     forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
   in {
     # Expose the supportedSystems list
-    supportedSystems = supportedSystems;
+    inherit supportedSystems;
 
     #
     packages = forAllSystems (system:
@@ -55,43 +43,29 @@
 
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
-    home-manager = forAllSystems (system: home-manager.packages.${system});
+    home-manager = forAllSystems (system: home-manager.packages.${system}.home-manager);
 
-    #
-    # apps = forAllSystems (system: {
-    #   proxmox-templates = {
-    #     type = "app";
-    #     program = "${nixpkgs.writeShellScript "run-proxmox-examples" ''
-    #       echo "This is a collection of Proxmox examples.  See the packages output for the actual configurations."
-    #       echo "You can find the generated configurations in the packages output."
-    #       echo "To use them, import this flake and access the 'proxmox-templates' package."
-    #     ''}";
-    #   };
-    #   toolbx-image = {
-    #     type = "app";
-    #     program = "${nixpkgs.writeShellScript "run-toolbx-image" ''
-    #       echo "This will build a docker image based on your workstation configuration."
-    #       echo "You can find the image definition in the packages output."
-    #       echo "To use it, import this flake and access the 'toolbx-image' package."
-    #     ''}";
-    #   };
-    # });
+    tests = {
+      basic-test = nixpkgs.lib.makeTest {
+        name = "basic-test";
+        system = "x86_64-linux";
+        expectedToFail = false;
+        phases = ''
+          buildPhase() {
+            echo "Running test..."
+            # Add your test commands here
+          }
+        '';
+      };
+    };
 
-    #
-    # overlays = {
-    #   default = final: prev: {
-    #     jackPublic = {
-    #       proxmox-templates = self.packages.x86_64-linux.proxmox-templates;
-    #       toolbx-image = self.packages.x86_64-linux.toolbx-image;
-    #     };
-    #   };
-    # };
-
+    # NixOS modules
     #
     nixosModules = {
       base = import ./modules/nixos/base.nix;
       base-lxc = import ./modules/nixos/base-lxc.nix;
       base-vm = import ./modules/nixos/base-vm.nix;
+      users = import ./modules/nixos/users.nix;
     };
 
     # NixOS configurations
@@ -106,6 +80,13 @@
       # };
     };
 
+    # Home-manager modules
+    #
+    homeModules = {
+      base = import ./home/jack/base.nix;
+      extended = import ./home/jack/extended.nix;
+    };
+
     # Home-manager configurations
     #
     # Available through 'home-manager --flake .#jack'
@@ -114,7 +95,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/base.nix
+          self.homeModules.base
         ];
       };
 
@@ -122,8 +103,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/base.nix
-          ./home/jack/extended.nix
+          self.homeModules.extended
         ];
       };
 
@@ -131,10 +111,9 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/base.nix
-          ./home/jack/extended.nix
+          self.homeModules.extended
           {
-            home.homeDirectory = "/home/jack/Toolbox";
+            home.homeDirectory = nixpkgs.lib.mkForce "/home/jack/Toolbox";
           }
         ];
       };
@@ -143,9 +122,23 @@
         pkgs = nixpkgs.legacyPackages.aarch64-linux;
         extraSpecialArgs = attrs;
         modules = [
-          ./home/jack/base.nix
-          ./home/jack/extended.nix
+          self.homeModules.extended
         ];
+      };
+
+      # "jack-minimal" = home-manager.lib.homeManagerConfiguration {
+      #   pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      #   extraSpecialArgs = attrs;
+      #   modules = [
+      #     self.homeModules.minimal
+      #   ];
+      # };
+
+      # FIXME replace with your username@hostname
+      "your-username@your-hostname" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = attrs;
+        modules = [];
       };
     };
 
@@ -172,5 +165,7 @@
         };
       }
     );
+
+    # Other configurations...
   };
 }

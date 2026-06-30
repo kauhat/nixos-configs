@@ -6,8 +6,7 @@
   config,
   pkgs,
   ...
-}: let
-in {
+}: {
   # You can import other home-manager modules here
   imports = [
     # If you want to use modules your own flake exports (from modules/home-manager):
@@ -19,6 +18,22 @@ in {
     # You can also split up your configuration and import pieces of it here:
     # ./nvim.nix
   ];
+
+  nix.package = pkgs.nix;
+
+  nix.settings = {
+    extra-substituters = [
+      "https://cache.garnix.io"
+      "https://cachix.cachix.org"
+      "https://nix-community.cachix.org"
+    ];
+
+    extra-trusted-public-keys = [
+      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+      "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
+  };
 
   nixpkgs = {
     # You can add overlays here
@@ -38,6 +53,7 @@ in {
       #   });
       # })
     ];
+
     # Configure your nixpkgs instance
     config = {
       # Disable if you don't want unfree packages
@@ -46,8 +62,8 @@ in {
   };
 
   home = {
-    username = "jack";
-    homeDirectory = "/home/jack";
+    username = lib.mkDefault "jack";
+    homeDirectory = lib.mkDefault "/home/jack";
   };
 
   home.packages = with pkgs; [
@@ -76,6 +92,8 @@ in {
     direnv # Setup directory env vars
     bat
 
+    nix-melt
+
     # Networking tools
     wget # HTTP downloads
   ];
@@ -102,11 +120,10 @@ in {
 
         # Use getantidote/use-omz to load specific Oh-My-Zsh plugins
         "getantidote/use-omz"
-        # Load the desired Oh-My-Zsh plugins via use-omz
         "ohmyzsh/ohmyzsh path:plugins/copypath"
         "ohmyzsh/ohmyzsh path:plugins/copyfile"
         "ohmyzsh/ohmyzsh path:plugins/copybuffer"
-        "ohmyzsh/ohmyzsh path:plugins/gitfast" # Provides the gitfast functionality
+        "ohmyzsh/ohmyzsh path:plugins/gitfast"
 
         # Add other Antidote plugins here if needed
         # Example: "zsh-users/zsh-syntax-highlighting"
@@ -118,7 +135,6 @@ in {
 
   programs.starship = {
     enable = true;
-    enableZshIntegration = true;
 
     settings = {
       add_newline = false;
@@ -131,7 +147,7 @@ in {
   };
 
   programs.fzf = {
-    # enableZshIntegration = true;
+    enable = true;
   };
 
   programs.lsd = {
@@ -146,40 +162,47 @@ in {
     };
   };
 
-  programs.neovim = {
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
+  # programs.neovim = {
+  #   enable = true;
+  #   defaultEditor = true;
+  #   viAlias = true;
+  #   vimAlias = true;
+  # };
+
+  programs.helix = {
     enable = true;
     defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
   };
 
   programs.git = {
     enable = true;
-    userName = "Jack Fletcher";
-    userEmail = "jackowenfletcher@gmail.com";
+
+    settings = {
+      user = {
+        name = "Jack Fletcher";
+        email = "jackowenfletcher@gmail.com";
+      };
+
+      init = {
+        defaultBranch = "main";
+      };
+
+      core = {editor = "hx";};
+      color = {ui = true;};
+      push = {default = "simple";};
+      pull = {ff = "only";};
+    };
 
     # aliases = {
     #   dotfiles = "!git -c status.showUntrackedFiles=no --git-dir=$DOTFILES/.git --work-tree=$HOME";
     # };
 
     lfs = {enable = true;};
-
-    delta = {
-      enable = true;
-      options = {
-        pager = "bat";
-        dark = true;
-        navigate = true;
-        syntax-theme = "Dracula";
-      };
-    };
-
-    extraConfig = {
-      core = {editor = "nvim";};
-      color = {ui = true;};
-      push = {default = "simple";};
-      pull = {ff = "only";};
-    };
 
     ignores = [
       ".vscode/**"
@@ -188,11 +211,18 @@ in {
       ".direnv"
       ".envrc"
     ];
+
+    signing.format = null;
   };
 
-  programs.direnv = {
+  programs.delta = {
     enable = true;
-    nix-direnv.enable = true;
+    options = {
+      pager = "bat";
+      dark = true;
+      navigate = true;
+      syntax-theme = "Dracula";
+    };
   };
 
   programs.ssh = {
