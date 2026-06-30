@@ -150,13 +150,12 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         default = pkgs.mkShell {
-          buildInputs = with pkgs;
-            home-manager.packages.${system}
-            ++ [
-              yamllint
-              kube-linter
-              nodePackages.prettier
-            ];
+          buildInputs = [
+            home-manager.packages.${system}.home-manager
+            pkgs.yamllint
+            pkgs.kube-linter
+            pkgs.nodePackages.prettier
+          ];
 
           packages = [
             # devbox
