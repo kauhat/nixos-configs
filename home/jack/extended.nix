@@ -101,7 +101,7 @@ in {
   };
 
   services.syncthing = {
-    enable = true;
+    # enable = false;
     # group = "jack";
     # user = "jack";
     # dataDir = "/home/jack/Documents";
