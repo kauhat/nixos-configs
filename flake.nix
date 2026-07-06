@@ -122,13 +122,13 @@
         ];
       };
 
-      "jack@penguin" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-linux;
-        extraSpecialArgs = attrs;
-        modules = [
-          self.homeModules.extended
-        ];
-      };
+      # "jack@penguin" = home-manager.lib.homeManagerConfiguration {
+      #   pkgs = nixpkgs.legacyPackages.aarch64-linux;
+      #   extraSpecialArgs = attrs;
+      #   modules = [
+      #     self.homeModules.extended
+      #   ];
+      # };
 
       # "jack-minimal" = home-manager.lib.homeManagerConfiguration {
       #   pkgs = nixpkgs.legacyPackages.x86_64-linux;
