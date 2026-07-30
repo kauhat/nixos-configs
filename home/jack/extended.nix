@@ -15,6 +15,7 @@
   ];
 
   home.packages = with pkgs; [
+    devbox.packages.${pkgs.system}.default
     # Backup and Synchronization Tools
     restic # Efficient backup
     rsync # File transfer and sync
@@ -27,19 +28,19 @@
     # Development and Productivity Tools
     tokei # Count lines of code
     tealdeer # Interactive cheat sheet
-    devbox.packages.${pkgs.system}.default
 
     # Networking Tools
     dig # DNS client
     dogdns # DNS client
     hurl # Scriptable HTTP client
-    xh # HTTP client
 
     # Monitoring and Resource Management
     iftop # Bandwidth usage
     bandwhich # Process bandwidth
     bottom # Resource monitor
     isd # Systemd TUI
+    restic
+    nix-melt
 
     # Terminal Multiplexers
     tmux # Terminal multiplexer
