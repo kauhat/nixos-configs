@@ -35,7 +35,11 @@
     inherit supportedSystems;
 
     #
-    packages = forAllSystems (system:
+    packages = forAllSystems (system: {});
+
+    # Heavy packages (e.g. disk images) that `nix flake check` skips.
+    # Build them explicitly with `nix build .#<name>`.
+    legacyPackages = forAllSystems (system:
       import ./pkgs ({
           pkgs = nixpkgs.legacyPackages.${system};
         }
@@ -118,13 +122,13 @@
         ];
       };
 
-      "jack-arm" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-linux;
-        extraSpecialArgs = attrs;
-        modules = [
-          self.homeModules.extended
-        ];
-      };
+      # "jack@penguin" = home-manager.lib.homeManagerConfiguration {
+      #   pkgs = nixpkgs.legacyPackages.aarch64-linux;
+      #   extraSpecialArgs = attrs;
+      #   modules = [
+      #     self.homeModules.extended
+      #   ];
+      # };
 
       # "jack-minimal" = home-manager.lib.homeManagerConfiguration {
       #   pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -133,13 +137,6 @@
       #     self.homeModules.minimal
       #   ];
       # };
-
-      # FIXME replace with your username@hostname
-      "your-username@your-hostname" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = attrs;
-        modules = [];
-      };
     };
 
     # Development shells
@@ -150,12 +147,11 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         default = pkgs.mkShell {
-          buildInputs = with pkgs; [
+          buildInputs = [
             home-manager.packages.${system}.home-manager
-            direnv
-            wget
-            bat
-            restic
+            pkgs.yamllint
+            pkgs.kube-linter
+            pkgs.nodePackages.prettier
           ];
 
           packages = [
