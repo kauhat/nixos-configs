@@ -16,6 +16,7 @@
 
   home.packages = with pkgs; [
     devbox.packages.${pkgs.system}.default
+
     # Backup and Synchronization Tools
     restic # Efficient backup
     rsync # File transfer and sync

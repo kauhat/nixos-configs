@@ -84,7 +84,6 @@
     # Text processing and utilities
     ripgrep # Regex search tool
     jq # JSON processor
-    delta # Syntax-highlighting pager
 
     # Shell and environment management
     zsh # Interactive shell
