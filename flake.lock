@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782246005,
-        "narHash": "sha256-m7FMUjKZZsmnjtnjPyyq0YUIjDQiyb5zBbpGiH4cdyw=",
+        "lastModified": 1788480445,
+        "narHash": "sha256-qTWNgC8Gbr6o1fsSU9KIxeF5Z1xRco29SqfBEdZL0GY=",
         "owner": "jetify-com",
         "repo": "devbox",
-        "rev": "be5b810af31dcfb4d397ced6aa4159b55a0a73b3",
+        "rev": "277290e92d7e5028e76068fab1035534f1193262",
         "type": "github"
       },
       "original": {
@@ -78,11 +78,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1785692966,
-        "narHash": "sha256-vUfIeBEfpbAfZ5zjgIkYk7eHBeVfCYVjLbWnMkseYnk=",
+        "lastModified": 1788752844,
+        "narHash": "sha256-VaWGJ6+cIYN2erfSecbRV+4ljI185Ty2wUrXyvQbgOw=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "643809054d65fdd466a63e3155b8c498cb483c04",
+        "rev": "dc5d91f840324650bac8c379428c7037a416959a",
         "type": "github"
       },
       "original": {
