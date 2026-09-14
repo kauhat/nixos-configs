@@ -26,5 +26,17 @@ RUN groupadd -f nix-users \
     && chown root:nix-users /nix/var/nix/daemon-socket \
     && chmod 775 /nix/var/nix/daemon-socket
 
-RUN nix profile install github:guibou/nixGL --impure
-RUN nix profile install home-manager
+# Pre-configure dynamic linker to discover Distrobox-mounted host Nvidia GL drivers
+RUN echo "/usr/lib/x86_64-linux-gnu" > /etc/ld.so.conf.d/nvidia-distrobox.conf \
+    && echo "/usr/lib64" >> /etc/ld.so.conf.d/nvidia-distrobox.conf \
+    && ldconfig
+
+# Bake user bootstrap script into /usr/local/bin
+RUN printf '#!/usr/bin/env bash\n\
+set -euo pipefail\n\
+if ! command -v home-manager &> /dev/null; then\n\
+    echo "Bootstrapping user profile for jack..."\n\
+    nix profile install github:nix-community/nixGL --impure\n\
+    nix profile install nixpkgs#home-manager\n\
+fi\n' > /usr/local/bin/container-bootstrap \
+    && chmod +x /usr/local/bin/container-bootstrap
