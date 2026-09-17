@@ -8,6 +8,11 @@ RUN apt-get update && apt-get install -y \
     libpam-systemd \
     nix-setup-systemd \
     pipewire-audio-client-libraries \
+    dbus \
+    dbus-user-session \
+    libsecret-1-0 \
+    libqt5keychain1 \
+    libqt6keychain1 \
     sudo \
     curl \
     git \
@@ -20,8 +25,10 @@ RUN mkdir -p /etc/nix \
     && echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf \
     && echo "trusted-users = root @nix-users @sudo" >> /etc/nix/nix.conf
 
-# Ensure group nix-users exists and fix daemon-socket directory permissions
+# Pre-create system groups required for Nix daemon and host GPU access
 RUN groupadd -f nix-users \
+    && groupadd -f render \
+    && groupadd -f video \
     && mkdir -p /nix/var/nix/daemon-socket \
     && chown root:nix-users /nix/var/nix/daemon-socket \
     && chmod 775 /nix/var/nix/daemon-socket
@@ -36,7 +43,7 @@ RUN printf '#!/usr/bin/env bash\n\
 set -euo pipefail\n\
 if ! command -v home-manager &> /dev/null; then\n\
     echo "Bootstrapping user profile for jack..."\n\
-    nix profile install github:nix-community/nixGL --impure\n\
-    nix profile install nixpkgs#home-manager\n\
+    # nix profile install github:nix-community/nixGL --impure\n\
+    # nix profile install nixpkgs#home-manager\n\
 fi\n' > /usr/local/bin/container-bootstrap \
     && chmod +x /usr/local/bin/container-bootstrap
