@@ -3,7 +3,6 @@
   lib,
   config,
   pkgs,
-  devbox,
   ...
 }: {
   # You can import other home-manager modules here
@@ -15,7 +14,7 @@
   ];
 
   home.packages = with pkgs; [
-    devbox.packages.${pkgs.system}.default
+    devbox
 
     # Backup and Synchronization Tools
     restic # Efficient backup

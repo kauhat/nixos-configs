@@ -9,17 +9,12 @@
     # Home manager
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-
-    # Devbox
-    devbox.url = "github:jetify-com/devbox";
-    devbox.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
     self,
     nixpkgs,
     home-manager,
-    devbox,
     ...
   } @ attrs: let
     supportedSystems = [
