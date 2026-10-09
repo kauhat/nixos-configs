@@ -60,7 +60,7 @@
 
         lib = let
           # Use a function that takes pkgs and lib
-          coreLib = import ./lib/core.nix;
+          coreLib = import ./lib;
         in {
           # Provide a way to get the utilities for a specific pkgs
           forPkgs = pkgs:
