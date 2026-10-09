@@ -31,7 +31,6 @@
         system,
         ...
       }: let
-        coreLib = import ./pkgs/lib.nix {inherit pkgs;};
         corePackages = import ./pkgs/core.nix {inherit pkgs;};
         localPackages = import ./pkgs {inherit pkgs;};
       in {
@@ -59,10 +58,16 @@
       flake = {
         supportedSystems = supportedSystems;
 
-        home-manager = home-manager.packages.x86_64-linux.home-manager;
-
-        lib = {
-          mkLib = pkgs: import ./pkgs/lib {inherit pkgs;};
+        lib = let
+          # Use a function that takes pkgs and lib
+          coreLib = import ./lib/core.nix;
+        in {
+          # Provide a way to get the utilities for a specific pkgs
+          forPkgs = pkgs:
+            coreLib {
+              inherit pkgs;
+              lib = pkgs.lib;
+            };
         };
 
         tests = {
