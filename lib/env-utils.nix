@@ -4,11 +4,13 @@
   ...
 } @ args: let
   # Parses KEY from a dotenv file using Python's standard library shlex parser.
-  # Handles single/double quotes, escaped characters, and comments (#).
+  # Handles single/double quotes, escaped characters, comments (#), and shell variable paths.
   getEnvValue = key: file: let
     pythonScript = ''
       import shlex, sys, os
-      file_path = "${file}"
+
+      # Expand shell variables like ''${XDG_RUNTIME_DIR} inside Python
+      file_path = os.path.expandvars("${file}")
       target_key = "${key}"
 
       if not os.path.exists(file_path):
@@ -30,7 +32,6 @@
     '';
   in "$(${pkgs.python3}/bin/python3 -c ${lib.escapeShellArg pythonScript} 2>/dev/null)";
 
-  #
   testEnvUtils = let
     sampleEnvFile = pkgs.writeText "sample.env" ''
       # Comment line
@@ -40,11 +41,18 @@
       export EXPORTED_KEY="exported_value" # inline comment
       # COMMENTED_KEY=commented_out
     '';
+
+    # Extract store dir and filename statically via Nix builtins
+    sampleDir = builtins.dirOf sampleEnvFile;
+    sampleFilename = builtins.baseNameOf sampleEnvFile;
   in
     pkgs.runCommand "test-getEnvValue" {
       nativeBuildInputs = [pkgs.python3];
     } ''
       echo "Running getEnvValue integration test..."
+
+      # Set TEST_DIR to the nix store directory containing sample.env
+      export TEST_DIR="${sampleDir}"
 
       TEST_PLAIN="${getEnvValue "PLAIN_KEY" sampleEnvFile}"
       TEST_SINGLE="${getEnvValue "SINGLE_QUOTED" sampleEnvFile}"
@@ -52,6 +60,9 @@
       TEST_EXPORT="${getEnvValue "EXPORTED_KEY" sampleEnvFile}"
       TEST_MISSING="${getEnvValue "MISSING_KEY" sampleEnvFile}"
       TEST_COMMENTED="${getEnvValue "COMMENTED_KEY" sampleEnvFile}"
+
+      # ''${TEST_DIR} is expanded by Python's os.path.expandvars at runtime
+      TEST_VAR_PATH="${getEnvValue "PLAIN_KEY" "\${TEST_DIR}/${sampleFilename}"}"
 
       fail=0
 
@@ -73,6 +84,7 @@
       assert_eq "Exported value" "exported_value" "$TEST_EXPORT"
       assert_eq "Missing key" "" "$TEST_MISSING"
       assert_eq "Commented key" "" "$TEST_COMMENTED"
+      assert_eq "Variable path expansion" "plain_value" "$TEST_VAR_PATH"
 
       if [ "$fail" -eq 1 ]; then
         exit 1
