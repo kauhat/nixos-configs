@@ -2,161 +2,145 @@
   description = "Jack's public Nix config";
 
   inputs = {
-    # Nixpkgs
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    # Home manager
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = {
+  outputs = inputs @ {
     self,
     nixpkgs,
     home-manager,
+    flake-parts,
     ...
-  } @ attrs: let
+  }: let
     supportedSystems = [
       "aarch64-linux"
       # "i686-linux"
       "x86_64-linux"
     ];
+  in
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = supportedSystems;
 
-    # Helper function to create an attribute set that applies to all supported systems.
-    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-  in {
-    # Expose the supportedSystems list
-    inherit supportedSystems;
-
-    #
-    packages = forAllSystems (system: {});
-
-    # Heavy packages (e.g. disk images) that `nix flake check` skips.
-    # Build them explicitly with `nix build .#<name>`.
-    legacyPackages = forAllSystems (system:
-      import ./pkgs ({
-          pkgs = nixpkgs.legacyPackages.${system};
-        }
-        // attrs));
-
-    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
-
-    home-manager = forAllSystems (system: home-manager.packages.${system}.home-manager);
-
-    tests = {
-      basic-test = nixpkgs.lib.makeTest {
-        name = "basic-test";
-        system = "x86_64-linux";
-        expectedToFail = false;
-        phases = ''
-          buildPhase() {
-            echo "Running test..."
-            # Add your test commands here
-          }
-        '';
-      };
-    };
-
-    # NixOS modules
-    #
-    nixosModules = {
-      base = import ./modules/nixos/base.nix;
-      base-lxc = import ./modules/nixos/base-lxc.nix;
-      base-vm = import ./modules/nixos/base-vm.nix;
-      users = import ./modules/nixos/users.nix;
-    };
-
-    # NixOS configurations
-    #
-    # Available through 'nixos-rebuild --flake .#your-hostname'
-    nixosConfigurations = {
-      # default = nixpkgs.lib.nixosSystem {
-      #   specialArgs = attrs;
-      #   modules = [
-      #     ./hosts/base.nix
-      #   ];
-      # };
-    };
-
-    # Home-manager modules
-    #
-    homeModules = {
-      base = import ./home/jack/base.nix;
-      extended = import ./home/jack/extended.nix;
-    };
-
-    # Home-manager configurations
-    #
-    # Available through 'home-manager --flake .#jack'
-    homeConfigurations = {
-      "jack" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = attrs;
-        modules = [
-          self.homeModules.base
-        ];
-      };
-
-      "jack-workstation" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = attrs;
-        modules = [
-          self.homeModules.extended
-        ];
-      };
-
-      "jack-toolbox" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = attrs;
-        modules = [
-          self.homeModules.extended
-          {
-            home.homeDirectory = nixpkgs.lib.mkForce "/home/jack/Toolbox";
-          }
-        ];
-      };
-
-      # "jack@penguin" = home-manager.lib.homeManagerConfiguration {
-      #   pkgs = nixpkgs.legacyPackages.aarch64-linux;
-      #   extraSpecialArgs = attrs;
-      #   modules = [
-      #     self.homeModules.extended
-      #   ];
-      # };
-
-      # "jack-minimal" = home-manager.lib.homeManagerConfiguration {
-      #   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      #   extraSpecialArgs = attrs;
-      #   modules = [
-      #     self.homeModules.minimal
-      #   ];
-      # };
-    };
-
-    # Development shells
-    #
-    # Available through 'nix develop'
-    devShells = forAllSystems (
-      system: let
-        pkgs = nixpkgs.legacyPackages.${system};
+      perSystem = {
+        config,
+        pkgs,
+        system,
+        ...
+      }: let
+        coreLib = import ./pkgs/lib.nix {inherit pkgs;};
+        corePackages = import ./pkgs/core.nix {inherit pkgs;};
+        localPackages = import ./pkgs {inherit pkgs;};
       in {
-        default = pkgs.mkShell {
+        formatter = pkgs.alejandra;
+
+        # Packages that `nix flake check` builds
+        packages = corePackages;
+
+        # Heavy packages (e.g. disk images) that `nix flake check` skips.
+        # Build explicitly with `nix build .#<name>`.
+        legacyPackages = localPackages;
+
+        # Development shells
+        devShells.default = pkgs.mkShell {
           buildInputs = [
             home-manager.packages.${system}.home-manager
             pkgs.yamllint
             pkgs.kube-linter
             pkgs.prettier
           ];
-
-          packages = [
-            # devbox
-            # devbox.defaultPackage.${system}
-          ];
         };
-      }
-    );
+      };
 
-    # Other configurations...
-  };
+      # Top-level flake attributes (not per-system)
+      flake = {
+        supportedSystems = supportedSystems;
+
+        home-manager = home-manager.packages.x86_64-linux.home-manager;
+
+        lib = {
+          mkLib = pkgs: import ./pkgs/lib {inherit pkgs;};
+        };
+
+        tests = {
+          basic-test = nixpkgs.lib.makeTest {
+            name = "basic-test";
+            system = "x86_64-linux";
+            expectedToFail = false;
+            phases = ''
+              buildPhase() {
+                echo "Running test..."
+                # Add your test commands here
+              }
+            '';
+          };
+        };
+
+        # NixOS modules
+        nixosModules = {
+          base = import ./modules/nixos/base.nix;
+          base-lxc = import ./modules/nixos/base-lxc.nix;
+          base-vm = import ./modules/nixos/base-vm.nix;
+          users = import ./modules/nixos/users.nix;
+        };
+
+        # NixOS configurations (currently empty)
+        nixosConfigurations = {};
+
+        # Home-manager modules
+        homeModules = {
+          base = import ./home/jack/base.nix;
+          extended = import ./home/jack/extended.nix;
+        };
+
+        # Home-manager configurations
+        homeConfigurations = {
+          "jack" = home-manager.lib.homeManagerConfiguration {
+            pkgs = nixpkgs.legacyPackages.x86_64-linux;
+            extraSpecialArgs = inputs;
+            modules = [
+              self.homeModules.base
+            ];
+          };
+
+          "jack-workstation" = home-manager.lib.homeManagerConfiguration {
+            pkgs = nixpkgs.legacyPackages.x86_64-linux;
+            extraSpecialArgs = inputs;
+            modules = [
+              self.homeModules.extended
+            ];
+          };
+
+          "jack-toolbox" = home-manager.lib.homeManagerConfiguration {
+            pkgs = nixpkgs.legacyPackages.x86_64-linux;
+            extraSpecialArgs = inputs;
+            modules = [
+              self.homeModules.extended
+              {
+                home.homeDirectory = nixpkgs.lib.mkForce "/home/jack/Toolbox";
+              }
+            ];
+          };
+
+          # "jack@penguin" = home-manager.lib.homeManagerConfiguration {
+          #   pkgs = nixpkgs.legacyPackages.aarch64-linux;
+          #   extraSpecialArgs = inputs;
+          #   modules = [
+          #     self.homeModules.extended
+          #   ];
+          # };
+
+          # "jack-minimal" = home-manager.lib.homeManagerConfiguration {
+          #   pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          #   extraSpecialArgs = inputs;
+          #   modules = [
+          #     self.homeModules.minimal
+          #   ];
+          # };
+        };
+      };
+    };
 }
