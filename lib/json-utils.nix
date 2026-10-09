@@ -1,4 +1,5 @@
 {pkgs, ...} @ args: {
+  # TODO: test this?
   fromJSON5 = json5String: let
     convertedJson = pkgs.runCommand "converted.json" {
       nativeBuildInputs = [pkgs.python3Packages.json5];
