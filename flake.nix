@@ -25,63 +25,20 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = supportedSystems;
 
-      perSystem = {
-        config,
-        pkgs,
-        system,
-        ...
-      }: let
-        corePackages = import ./pkgs/core.nix {inherit pkgs;};
-        localPackages = import ./pkgs {inherit pkgs;};
-      in {
-        formatter = pkgs.alejandra;
-
-        # Packages that `nix flake check` builds
-        packages = corePackages;
-
-        # Heavy packages (e.g. disk images) that `nix flake check` skips.
-        # Build explicitly with `nix build .#<name>`.
-        legacyPackages = localPackages;
-
-        # Development shells
-        devShells.default = pkgs.mkShell {
-          buildInputs = [
-            home-manager.packages.${system}.home-manager
-            pkgs.yamllint
-            pkgs.kube-linter
-            pkgs.prettier
-          ];
-        };
-      };
-
       # Top-level flake attributes (not per-system)
       flake = {
-        supportedSystems = supportedSystems;
-
         lib = let
           # Use a function that takes pkgs and lib
           coreLib = import ./lib;
         in {
+          supportedSystems = supportedSystems;
+
           # Provide a way to get the utilities for a specific pkgs
           forPkgs = pkgs:
             coreLib {
               inherit pkgs;
               lib = pkgs.lib;
             };
-        };
-
-        tests = {
-          basic-test = nixpkgs.lib.makeTest {
-            name = "basic-test";
-            system = "x86_64-linux";
-            expectedToFail = false;
-            phases = ''
-              buildPhase() {
-                echo "Running test..."
-                # Add your test commands here
-              }
-            '';
-          };
         };
 
         # NixOS modules
@@ -145,6 +102,41 @@
           #     self.homeModules.minimal
           #   ];
           # };
+        };
+      };
+
+      perSystem = {
+        config,
+        pkgs,
+        system,
+        ...
+      }: let
+        corePackages = import ./pkgs/core.nix {inherit pkgs;};
+        localPackages = import ./pkgs {inherit pkgs;};
+        publicLib = self.lib.forPkgs pkgs;
+      in {
+        formatter = pkgs.alejandra;
+
+        # Packages that `nix flake check` builds
+        packages = corePackages;
+
+        # Heavy packages (e.g. disk images) that `nix flake check` skips.
+        # Build explicitly with `nix build .#<name>`.
+        legacyPackages = localPackages;
+
+        #
+        checks = {
+          lib-getEnvValue = publicLib.envUtils.testEnvUtils;
+        };
+
+        # Development shells
+        devShells.default = pkgs.mkShell {
+          buildInputs = [
+            home-manager.packages.${system}.home-manager
+            pkgs.yamllint
+            pkgs.kube-linter
+            pkgs.prettier
+          ];
         };
       };
     };
