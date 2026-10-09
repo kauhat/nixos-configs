@@ -31,7 +31,7 @@
 
     # Networking Tools
     dig # DNS client
-    dogdns # DNS client
+    doggo # DNS client
     hurl # Scriptable HTTP client
 
     # Monitoring and Resource Management
