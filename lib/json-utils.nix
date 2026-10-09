@@ -15,5 +15,5 @@
   # TODO
   # validateJSON5 = ...;
 in {
-  inherit getEnvValue testEnvUtils;
+  inherit fromJSON5;
 }
