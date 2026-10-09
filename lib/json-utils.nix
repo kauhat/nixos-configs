@@ -1,8 +1,10 @@
 {pkgs, ...} @ args: {
-  fromJSON5 = json5File: let
+  fromJSON5 = json5String: let
     convertedJson = pkgs.runCommand "converted.json" {
       nativeBuildInputs = [pkgs.python3Packages.json5];
-    } "pyjson5 --as-json ${json5File} > $out";
+      passAsFile = ["json5String"];
+      json5String = json5String;
+    } "pyjson5 --as-json $json5StringPath > $out";
   in
     builtins.fromJSON (builtins.readFile convertedJson);
 
