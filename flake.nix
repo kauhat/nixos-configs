@@ -127,6 +127,7 @@
         #
         checks = {
           lib-getEnvValue = publicLib.envUtils.testEnvUtils;
+          lib-fromJSON5 = publicLib.jsonUtils.testFromJSON5;
         };
 
         # Development shells
