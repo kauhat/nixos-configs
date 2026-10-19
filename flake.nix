@@ -49,7 +49,7 @@
           users = import ./modules/nixos/users.nix;
         };
 
-        # NixOS configurations (currently empty)
+        # NixOS configurations (nothing here right now)
         nixosConfigurations = {};
 
         # Home-manager modules

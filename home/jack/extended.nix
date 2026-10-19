@@ -15,6 +15,7 @@
 
   home.packages = with pkgs; [
     devbox
+    just-lsp
 
     # Backup and Synchronization Tools
     restic # Efficient backup
@@ -24,6 +25,7 @@
     # Nix/NixOS
     alejandra # Nix code formatting
     nil # Nix language server
+    nix-melt
 
     # Development and Productivity Tools
     tokei # Count lines of code

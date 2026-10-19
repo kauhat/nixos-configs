@@ -64,6 +64,7 @@
     homeDirectory = lib.mkDefault "/home/jack";
   };
 
+  # TODO: Move to seperate modules and just keep basic shell stuff here?
   home.packages = with pkgs; [
     # Monitoring and resource management
     procs # Replacement for `ps`
@@ -84,12 +85,11 @@
     jq # JSON processor
 
     # Shell and environment management
-    zsh # Interactive shell
-    starship # Customizable prompt
+    bat    
     direnv # Setup directory env vars
-    bat
-
-    nix-melt
+    just
+    starship # Customizable prompt
+    zsh # Interactive shell
 
     # Networking tools
     wget # HTTP downloads
