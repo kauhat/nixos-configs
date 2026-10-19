@@ -16,6 +16,7 @@
   home.packages = with pkgs; [
     devbox
     just-lsp
+    age
 
     # Backup and Synchronization Tools
     restic # Efficient backup
