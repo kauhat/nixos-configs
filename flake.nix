@@ -31,13 +31,13 @@
           # Use a function that takes pkgs and lib
           coreLib = import ./lib;
         in {
-          supportedSystems = supportedSystems;
+          inherit supportedSystems;
 
           # Provide a way to get the utilities for a specific pkgs
           forPkgs = pkgs:
             coreLib {
               inherit pkgs;
-              lib = pkgs.lib;
+              inherit (pkgs) lib;
             };
         };
 

@@ -85,7 +85,7 @@
     jq # JSON processor
 
     # Shell and environment management
-    bat    
+    bat
     direnv # Setup directory env vars
     just
     starship # Customizable prompt
