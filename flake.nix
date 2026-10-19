@@ -50,7 +50,18 @@
         };
 
         # NixOS configurations (nothing here right now)
-        nixosConfigurations = {};
+        nixosConfigurations = {
+          example-http = nixpkgs.lib.nixosSystem {
+            modules = [
+              ./hosts/example-http.nix
+              self.outputs.nixosModules.users
+              self.outputs.nixosModules.base
+              self.outputs.nixosModules.base-vm
+            ];
+
+            specialArgs = {outputs = self;};
+          };
+        };
 
         # Home-manager modules
         homeModules = {

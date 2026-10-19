@@ -8,11 +8,9 @@
   system,
   ...
 }: {
-  imports = [
-    outputs.nixosModules.base
-  ];
-
   config = {
+    nixpkgs.hostPlatform = "x86_64-linux";
+
     networking.firewall.allowedTCPPorts = [80 443];
 
     # HTTP reverse proxy
