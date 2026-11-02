@@ -1,19 +1,25 @@
 name: "Run tests"
+
 on:
   push:
     branches:
       - "main"
+
+  pull_request:
+    types:
+      - opened
+
 jobs:
-  test-flake:
-    runs-on: "ubuntu-latest"
+  nix-flake-check:
     permissions:
       contents: "read"
+    runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v5"
         with:
           persist-credentials: false
-      - uses: "DeterminateSystems/flake-checker-action@main"
-      - uses: "DeterminateSystems/determinate-nix-action@v3"
-      - uses: "DeterminateSystems/magic-nix-cache-action@main"
+      - uses: DeterminateSystems/flake-checker-action@main
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: "nix flake show --all-systems"
       - run: "nix flake check"
