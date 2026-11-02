@@ -6,20 +6,24 @@ on:
       - "main"
 
   pull_request:
-    types:
-      - opened
 
 jobs:
   nix-flake-check:
     permissions:
-      contents: "read"
-    runs-on: "ubuntu-latest"
+      contents: read
+      id-token: write
+
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: "actions/checkout@v5"
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
+
       - uses: DeterminateSystems/flake-checker-action@main
       - uses: DeterminateSystems/determinate-nix-action@v3
+
       - uses: DeterminateSystems/magic-nix-cache-action@main
+
       - run: "nix flake show --all-systems"
       - run: "nix flake check"
