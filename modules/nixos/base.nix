@@ -1,10 +1,7 @@
 # A base VM with some networking utilities...
 {
-  config,
   pkgs,
-  modulesPath,
   lib,
-  system,
   ...
 }: {
   config = {

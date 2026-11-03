@@ -1,9 +1,6 @@
 # This is your home-manager configuration file.
 {
-  inputs,
-  outputs,
   lib,
-  config,
   pkgs,
   ...
 }: {

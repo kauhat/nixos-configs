@@ -1,12 +1,5 @@
 # This is your home-manager configuration file.
-{
-  inputs,
-  outputs,
-  lib,
-  config,
-  pkgs,
-  ...
-}: {
+_: {
   config = {
     # Add an admin user
     users.users.jack = {

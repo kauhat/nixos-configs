@@ -1,8 +1,4 @@
-{
-  pkgs,
-  self,
-  ...
-}: let
+{pkgs, ...}: let
   vmware = pkgs.lib.nixosSystem {
     system = "x86_64-linux";
     format = "vmware";

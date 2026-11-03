@@ -1,13 +1,5 @@
 # https://www.joshuamlee.com/nixos-proxmox-vm-images/
-{
-  config,
-  outputs,
-  pkgs,
-  modulesPath,
-  lib,
-  system,
-  ...
-}: {
+_: {
   config = {
     nixpkgs.hostPlatform = "x86_64-linux";
 

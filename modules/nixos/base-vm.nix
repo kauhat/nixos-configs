@@ -1,12 +1,5 @@
 # A base VM with some networking utilities...
-{
-  config,
-  pkgs,
-  modulesPath,
-  lib,
-  system,
-  ...
-}: {
+{lib, ...}: {
   imports = [
     # "${toString modulesPath}/virtualisation/proxmox-image.nix"
     # ./base.nix

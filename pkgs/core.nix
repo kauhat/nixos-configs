@@ -1,3 +1,3 @@
-{pkgs, ...} @ args: {
+_: {
   # json-utils = pkgs.callPackage ./json-utils.nix args;
 }

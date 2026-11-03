@@ -1,12 +1,5 @@
 # A base VM with some networking utilities...
-{
-  config,
-  pkgs,
-  modulesPath,
-  lib,
-  system,
-  ...
-}: {
+{...}: {
   imports = [
     # "${toString modulesPath}/virtualisation/proxmox-lxc.nix"
     # ./base.nix

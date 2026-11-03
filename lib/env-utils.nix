@@ -2,7 +2,7 @@
   pkgs,
   lib,
   ...
-} @ args: let
+}: let
   # Parses KEY from a dotenv file using Python's standard library shlex parser.
   # Handles single/double quotes, escaped characters, comments (#), and shell variable paths.
   getEnvValue = key: file: let

@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-} @ args: let
+{pkgs, ...}: let
   fromJSON5 = json5String: let
     convertedJson = pkgs.runCommand "converted.json" {
       inherit json5String;

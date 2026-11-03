@@ -21,8 +21,8 @@ jobs:
           persist-credentials: false
 
       - uses: DeterminateSystems/flake-checker-action@main
-      - uses: DeterminateSystems/determinate-nix-action@v3
 
+      - uses: DeterminateSystems/determinate-nix-action@v3
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - run: "nix flake show --all-systems"
