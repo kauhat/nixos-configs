@@ -97,13 +97,17 @@ jobs:
           REPO_OWNER=$(echo "$REPO_OWNER" | tr '[:upper:]' '[:lower:]')
           IMAGE_ID=$REGISTRY/$REPO_OWNER/$IMAGE_NAME
 
-          # Copying as OCI compresses the layers. The tarball that Nix builds
-          # has uncompressed layers, and pushing those as they are makes the
-          # image three times bigger to pull.
-          skopeo copy --format oci docker-archive:image.tar "docker://$IMAGE_ID:latest"
-          skopeo copy --format oci docker-archive:image.tar "docker://$IMAGE_ID:$IMAGE_SHA"
+          # Convert to an OCI archive first. The tarball that Nix builds has
+          # uncompressed layers, and copying those straight to a registry
+          # keeps them uncompressed while labelling them as gzip, which
+          # breaks pulls. The OCI archive forces the layers to be compressed,
+          # which takes the image from 2086 MB down to about 725 MB.
+          skopeo copy --format oci docker-archive:image.tar oci-archive:oci.tar:out
+          skopeo copy oci-archive:oci.tar:out "docker://$IMAGE_ID:latest"
+          skopeo copy oci-archive:oci.tar:out "docker://$IMAGE_ID:$IMAGE_SHA"
+          rm -f oci.tar image.tar
 
-      - name: Report image size
+      - name: Verify published image
         if: github.event_name != 'pull_request'
         env:
           REGISTRY: ${{ env.REGISTRY }}
@@ -115,10 +119,21 @@ jobs:
           REPO_OWNER=$(echo "$REPO_OWNER" | tr '[:upper:]' '[:lower:]')
           IMAGE_ID=$REGISTRY/$REPO_OWNER/$IMAGE_NAME
 
-          # Ask the registry how big the image is to pull, which is the number
-          # that matters for the people pulling it.
-          curl -fsS -u "$GHCR_USER:$GHCR_TOKEN" \
-            -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.manifest.v1+json" \
-            "https://$REGISTRY/v2/$REPO_OWNER/$IMAGE_NAME/manifests/latest" \
-            | jq -r '[.layers[]?.size] | add // 0' \
-            | awk '{printf "Pull size of %s: %.0f MB\n", "'"$IMAGE_ID"':latest", $1/1000000}'
+          manifest=$(curl -fsS -u "$GHCR_USER:$GHCR_TOKEN" \
+            -H "Accept: application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json" \
+            "https://$REGISTRY/v2/$REPO_OWNER/$IMAGE_NAME/manifests/latest")
+
+          # The size people actually pull.
+          total=$(echo "$manifest" | jq -r '[.layers[]?.size] | add // 0')
+          echo "Pull size of $IMAGE_ID:latest: $((total / 1000000)) MB"
+
+          # The layers have to be compressed, not just labelled as such.
+          digest=$(echo "$manifest" | jq -r '.layers[0].digest')
+          magic=$(curl -fsSL -u "$GHCR_USER:$GHCR_TOKEN" \
+            "https://$REGISTRY/v2/$REPO_OWNER/$IMAGE_NAME/blobs/$digest" \
+            | head -c 2 | od -An -tx1 | tr -d ' \n')
+          if [[ "$magic" != "1f8b" ]]; then
+            echo "layer $digest is not gzip compressed (magic: $magic)"
+            exit 1
+          fi
+          echo "published image verified"
