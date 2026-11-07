@@ -29,6 +29,27 @@ in
     ];
 
     fakeRootCommands = ''
+      # The Nix layers link the binaries of their packages into /bin and /lib,
+      # which shadows the /bin -> usr/bin and /lib -> usr/lib symlinks of
+      # the Fedora base image. Move them into /usr/bin and /usr/lib and put
+      # the symlinks back, or the container ends up without a shell.
+      mkdir -p ./usr/bin ./usr/lib
+      for f in ./bin/*; do
+        target=$(readlink "$f") || continue
+        [ -n "$target" ] || continue
+        ln -sf "$target" "./usr/bin/$(basename "$f")"
+      done
+      rm -rf ./bin
+      ln -s usr/bin ./bin
+
+      for f in ./lib/*; do
+        target=$(readlink "$f") || continue
+        [ -n "$target" ] || continue
+        ln -sf "$target" "./usr/lib/$(basename "$f")"
+      done
+      rm -rf ./lib
+      ln -s usr/lib ./lib
+
       # --- Nix ---
       mkdir -p ./nix/store ./nix/var/nix/daemon-socket ./etc/nix
       chmod 777 ./nix/var/nix/daemon-socket

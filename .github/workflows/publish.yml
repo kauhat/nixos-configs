@@ -87,6 +87,7 @@ jobs:
             for unit in basic.target sysinit.target multi-user.target sockets.target; do
               test -e "/usr/lib/systemd/system/$unit" || { echo "missing unit: $unit"; exit 1; }
             done
+            test -e /bin/sh || { echo "missing /bin/sh"; exit 1; }
             test -e /usr/lib/systemd/systemd || { echo "missing systemd"; exit 1; }
             test -e /etc/pam.d/sudo || { echo "missing PAM config for sudo"; exit 1; }
             test -e /etc/systemd/system/multi-user.target.wants/nix-daemon.service || { echo "missing nix-daemon.service"; exit 1; }
