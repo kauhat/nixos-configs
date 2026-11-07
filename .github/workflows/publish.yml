@@ -44,6 +44,13 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3
 
+      - name: Install regctl
+        if: github.event_name != 'pull_request'
+        # Pinned to the same nixpkgs the flake uses.
+        run: |
+          rev=$(nix flake metadata --json | jq -r '.locks.nodes.nixpkgs.locked.rev')
+          nix profile install "github:NixOS/nixpkgs/$rev#regctl"
+
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
         env:
@@ -57,6 +64,7 @@ jobs:
             printf '{"default":[{"type":"insecureAcceptAnything"}]}' > /etc/containers/policy.json
           fi
           echo "$GHCR_TOKEN" | skopeo login "$REGISTRY" --username "$GHCR_USER" --password-stdin
+          echo "$GHCR_TOKEN" | regctl registry login "$REGISTRY" -u "$GHCR_USER" --pass-stdin
 
       - name: Build and load image
         # streamLayeredImage outputs a script that writes the image tarball to
@@ -97,15 +105,18 @@ jobs:
           REPO_OWNER=$(echo "$REPO_OWNER" | tr '[:upper:]' '[:lower:]')
           IMAGE_ID=$REGISTRY/$REPO_OWNER/$IMAGE_NAME
 
-          # Convert to an OCI archive first. The tarball that Nix builds has
-          # uncompressed layers, and copying those straight to a registry
-          # keeps them uncompressed while labelling them as gzip, which
-          # breaks pulls. The OCI archive forces the layers to be compressed,
-          # which takes the image from 2086 MB down to about 725 MB.
+          # The tarball that Nix builds has uncompressed layers, which makes
+          # the image 2086 MB to pull. Converting it to an OCI archive
+          # compresses every layer and brings that down to about 725 MB.
+          #
+          # The push has to be done with regctl rather than skopeo: skopeo
+          # decompresses the layers again when copying to a registry.
           skopeo copy --format oci docker-archive:image.tar oci-archive:oci.tar:out
-          skopeo copy oci-archive:oci.tar:out "docker://$IMAGE_ID:latest"
-          skopeo copy oci-archive:oci.tar:out "docker://$IMAGE_ID:$IMAGE_SHA"
-          rm -f oci.tar image.tar
+          mkdir -p oci
+          tar -xf oci.tar -C oci
+          regctl image copy "ocidir://$PWD/oci:out" "registry://$IMAGE_ID:latest"
+          regctl image copy "ocidir://$PWD/oci:out" "registry://$IMAGE_ID:$IMAGE_SHA"
+          rm -rf oci oci.tar image.tar
 
       - name: Verify published image
         if: github.event_name != 'pull_request'
@@ -119,7 +130,11 @@ jobs:
           REPO_OWNER=$(echo "$REPO_OWNER" | tr '[:upper:]' '[:lower:]')
           IMAGE_ID=$REGISTRY/$REPO_OWNER/$IMAGE_NAME
 
-          manifest=$(curl -fsS -u "$GHCR_USER:$GHCR_TOKEN" \
+          token=$(curl -fsS -u "$GHCR_USER:$GHCR_TOKEN" \
+            "https://$REGISTRY/token?scope=repository:$REPO_OWNER/$IMAGE_NAME:pull" \
+            | jq -r '.token')
+
+          manifest=$(curl -fsS -H "Authorization: Bearer $token" \
             -H "Accept: application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json" \
             "https://$REGISTRY/v2/$REPO_OWNER/$IMAGE_NAME/manifests/latest")
 
@@ -128,8 +143,15 @@ jobs:
           echo "Pull size of $IMAGE_ID:latest: $((total / 1000000)) MB"
 
           # The layers have to be compressed, not just labelled as such.
+          uncompressed=$(echo "$manifest" | jq -r '[.layers[]? | select(.mediaType != "application/vnd.oci.image.layer.v1.tar+gzip")] | length')
+          if [[ "$uncompressed" != "0" ]]; then
+            echo "$uncompressed layers are not gzip compressed"
+            echo "$manifest" | jq -r '.layers[].mediaType' | sort | uniq -c
+            exit 1
+          fi
+
           digest=$(echo "$manifest" | jq -r '.layers[0].digest')
-          magic=$(curl -fsSL -u "$GHCR_USER:$GHCR_TOKEN" \
+          magic=$(curl -fsSL -H "Authorization: Bearer $token" \
             "https://$REGISTRY/v2/$REPO_OWNER/$IMAGE_NAME/blobs/$digest" \
             | head -c 2 | od -An -tx1 | tr -d ' \n')
           if [[ "$magic" != "1f8b" ]]; then
