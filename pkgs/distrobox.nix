@@ -3,116 +3,77 @@
   pkgs,
   ...
 }: let
-  # The distrobox entrypoint runs before any shell is set up and needs a
-  # regular userland on PATH, so these are linked into /usr/bin.
-  baseTools = with pkgs; [
-    coreutils
-    diffutils
-    file
-    findutils
-    gawk
-    getent
-    glibc.bin
-    gnugrep
-    gnused
-    gnutar
-    gzip
-    inetutils
-    iputils
-    lsof
-    rsync
-    shadow
-    sudo
-    systemd
-    tree
-    unzip
-    util-linux
-    which
-    wget
-    xz
-  ];
+  # The distrobox entrypoint needs a real userland to set the container up:
+  # PAM for sudo, shadow tools to create the user, systemd units to boot.
+  # Fedora's toolbox image has all of that, so the Nix parts are layered on
+  # top of it instead of trying to rebuild a distribution from scratch.
+  fedoraToolbox = pkgs.dockerTools.pullImage {
+    imageName = "quay.io/fedora/fedora-toolbox";
+    imageDigest = "sha256:3d8c46e803fd184e9318ee90d4e6f1ad0b591a1c49f4de683d4f8748c0b95c30";
+    outputHash = "0ni43sag0mgjsalk0a0pzglrcqhsvbxakw9g35q7l1dwivmp87lq";
+    outputHashAlgo = "sha256";
+  };
 in
   pkgs.dockerTools.streamLayeredImage {
     name = "local/nix-distrobox";
     tag = "latest";
 
-    contents =
-      (with pkgs; [
-        bashInteractive
-        curl
-        dbus
-        fish
-        git
-        glibc
-        kdePackages.kwallet
-        kdePackages.kwalletmanager
-        libsecret
-        mount
-        nix
-        pipewire
-        procps
-        systemd
-        tzdata
-        util-linux
-        zsh
-      ])
-      ++ baseTools;
+    fromImage = fedoraToolbox;
+
+    contents = with pkgs; [
+      kdePackages.kwallet
+      kdePackages.kwalletmanager
+      libsecret
+      nix
+      pipewire
+    ];
 
     fakeRootCommands = ''
-      # Set up essential FHS directories Distrobox expects to mount into
-      mkdir -p ./bin ./usr/bin ./sbin ./etc ./tmp ./var/tmp ./usr/lib ./usr/lib64
-      mkdir -p ./nix/var/nix/daemon-socket
-
-      # FHS symlinks for Distrobox init script and Systemd entrypoint
-      ln -sf ${pkgs.bashInteractive}/bin/bash ./bin/bash
-      ln -sf ${pkgs.bashInteractive}/bin/bash ./bin/sh
-      ln -sf ${pkgs.coreutils}/bin/env ./usr/bin/env
-      ln -sf ${pkgs.systemd}/lib/systemd/systemd ./sbin/init
-
-      # Link the base tools into /usr/bin. Distrobox rebuilds the container
-      # PATH from the host, so the image cannot rely on its own PATH here:
-      # the entrypoint needs grep, sed, awk, mount and friends to be found.
-      for tool in ${lib.concatStringsSep " " baseTools}; do
-        for bin in "$tool"/bin/*; do
-          [ -e "$bin" ] && ln -sf "$bin" ./usr/bin/
-        done
+      # The Nix layers link the binaries of their packages into /bin and /lib,
+      # which shadows the /bin -> usr/bin and /lib -> usr/lib symlinks of
+      # the Fedora base image. Move them into /usr/bin and /usr/lib and put
+      # the symlinks back, or the container ends up without a shell.
+      mkdir -p ./usr/bin ./usr/lib
+      for f in ./bin/*; do
+        target=$(readlink "$f") || continue
+        [ -n "$target" ] || continue
+        ln -sf "$target" "./usr/bin/$(basename "$f")"
       done
+      rm -rf ./bin
+      ln -s usr/bin ./bin
 
-      # Pre-create groups required by your distrobox.ini hooks and Nix daemon
-      echo 'root:x:0:' > ./etc/group
-      echo 'wheel:x:10:root' >> ./etc/group
-      echo 'video:x:39:root' >> ./etc/group
-      echo 'render:x:399:root' >> ./etc/group
-      echo 'root:x:0:0:root:/root:/bin/bash' > ./etc/passwd
+      for f in ./lib/*; do
+        target=$(readlink "$f") || continue
+        [ -n "$target" ] || continue
+        ln -sf "$target" "./usr/lib/$(basename "$f")"
+      done
+      rm -rf ./lib
+      ln -s usr/lib ./lib
 
-      # Replaces your /etc/nix/nix.conf generation
+      # --- Nix ---
+      mkdir -p ./nix/store ./nix/var/nix/daemon-socket ./etc/nix
       chmod 777 ./nix/var/nix/daemon-socket
-      mkdir -p ./etc/nix
+
       echo "experimental-features = nix-command flakes" > ./etc/nix/nix.conf
       echo "trusted-users = root @wheel" >> ./etc/nix/nix.conf
 
-      # Replaces your 'systemctl enable nix-daemon'
+      # The nix daemon builds as these users, the same ids NixOS uses.
+      echo "nixbld:x:30000:" >> ./etc/group
+      for i in $(seq 1 32); do
+        echo "nixbld''${i}:x:$((30000 + i)):30000:Nix build user:/var/empty:/noshell" >> ./etc/passwd
+      done
+
+      # --- nix-daemon ---
       mkdir -p ./etc/systemd/system/multi-user.target.wants
       mkdir -p ./etc/systemd/system/sockets.target.wants
       ln -sf ${pkgs.nix}/lib/systemd/system/nix-daemon.service ./etc/systemd/system/multi-user.target.wants/nix-daemon.service
       ln -sf ${pkgs.nix}/lib/systemd/system/nix-daemon.socket ./etc/systemd/system/sockets.target.wants/nix-daemon.socket
-
-      # Nixpkgs moves systemd's unit files out of the way so that packages do
-      # not pull in all of them. Systemd needs them to start anything at all,
-      # so link them back in.
-      mkdir -p ./usr/lib/systemd/system ./usr/lib/systemd/user
-      for unit in ${pkgs.systemd}/example/systemd/system/*; do
-        ln -sf "$unit" ./usr/lib/systemd/system/
-      done
-      for unit in ${pkgs.systemd}/example/systemd/user/*; do
-        ln -sf "$unit" ./usr/lib/systemd/user/
-      done
     '';
 
     config = {
-      Cmd = ["/sbin/init"];
+      Cmd = ["/usr/lib/systemd/systemd"];
       Env = [
-        "PATH=/nix/var/nix/profiles/default/bin:/bin:/usr/bin:/sbin"
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       ];
     };
   }
