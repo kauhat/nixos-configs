@@ -63,6 +63,25 @@ jobs:
           podman load --input image.tar
           rm -f image.tar
 
+      - name: Verify image
+        # The distrobox entrypoint needs a userland and systemd units to be
+        # present before it can set the container up, so check for them here
+        # rather than finding out on the host.
+        run: |
+          podman run --rm --entrypoint /bin/sh local/nix-distrobox:latest -c '
+            set -e
+            for tool in grep sed awk find findmnt script mount usermod systemctl stat readlink; do
+              command -v "$tool" > /dev/null || { echo "missing tool: $tool"; exit 1; }
+            done
+            for unit in basic.target sysinit.target multi-user.target sockets.target; do
+              test -e "/usr/lib/systemd/system/$unit" || { echo "missing unit: $unit"; exit 1; }
+            done
+            test -e /lib/systemd/systemd || { echo "missing systemd"; exit 1; }
+            test -e /etc/systemd/system/multi-user.target.wants/nix-daemon.service || { echo "missing nix-daemon.service"; exit 1; }
+            test -e /etc/nix/nix.conf || { echo "missing nix.conf"; exit 1; }
+            echo "image verification passed"
+          '
+
       - name: Tag and push to GHCR
         if: github.event_name != 'pull_request'
         env:

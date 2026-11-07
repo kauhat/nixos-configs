@@ -96,6 +96,17 @@ in
       mkdir -p ./etc/systemd/system/sockets.target.wants
       ln -sf ${pkgs.nix}/lib/systemd/system/nix-daemon.service ./etc/systemd/system/multi-user.target.wants/nix-daemon.service
       ln -sf ${pkgs.nix}/lib/systemd/system/nix-daemon.socket ./etc/systemd/system/sockets.target.wants/nix-daemon.socket
+
+      # Nixpkgs moves systemd's unit files out of the way so that packages do
+      # not pull in all of them. Systemd needs them to start anything at all,
+      # so link them back in.
+      mkdir -p ./usr/lib/systemd/system ./usr/lib/systemd/user
+      for unit in ${pkgs.systemd}/example/systemd/system/*; do
+        ln -sf "$unit" ./usr/lib/systemd/system/
+      done
+      for unit in ${pkgs.systemd}/example/systemd/user/*; do
+        ln -sf "$unit" ./usr/lib/systemd/user/
+      done
     '';
 
     config = {
