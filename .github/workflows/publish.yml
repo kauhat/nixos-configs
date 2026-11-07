@@ -54,7 +54,9 @@ jobs:
 
       - name: Build and load image into Docker daemon
         # streamLayeredImage outputs a script that writes the image tarball to stdout
-        run: nix run .#distrobox | docker load
+        run: |
+          nix build .#distrobox --out-link result
+          ./result | docker load
 
       - name: Tag and push to GHCR
         if: github.event_name != 'pull_request'
