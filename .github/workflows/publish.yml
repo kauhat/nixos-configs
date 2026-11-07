@@ -114,8 +114,8 @@ jobs:
           skopeo copy --format oci docker-archive:image.tar oci-archive:oci.tar:out
           mkdir -p oci
           tar -xf oci.tar -C oci
-          regctl image copy "ocidir://$PWD/oci:out" "registry://$IMAGE_ID:latest"
-          regctl image copy "ocidir://$PWD/oci:out" "registry://$IMAGE_ID:$IMAGE_SHA"
+          regctl image copy "ocidir://$PWD/oci:out" "$IMAGE_ID:latest"
+          regctl image copy "ocidir://$PWD/oci:out" "$IMAGE_ID:$IMAGE_SHA"
           rm -rf oci oci.tar image.tar
 
       - name: Verify published image
