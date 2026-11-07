@@ -11,7 +11,7 @@ set -Eeuo pipefail
 #
 # Options:
 #   -n, --name NAME   Container to create (default: nix-toolbox-next)
-#   -f, --force       Pull the image even if it is already present
+#   -N, --no-pull    Do not pull the image, use whatever is local
 #   -r, --root        Create a rootful container
 #   -h, --help        Show this help
 
@@ -19,7 +19,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 INI="${SCRIPT_DIR}/distrobox.ini"
 
 CONTAINER="nix-toolbox-next"
-FORCE_PULL=false
+PULL=true
 ROOTFUL=false
 
 # Helper function to check if a command exists.
@@ -43,7 +43,11 @@ while [[ $# -gt 0 ]]; do
 		shift 2
 		;;
 	-f | --force)
-		FORCE_PULL=true
+		PULL=true
+		shift
+		;;
+	-N | --no-pull)
+		PULL=false
 		shift
 		;;
 	-r | --root)
@@ -103,11 +107,19 @@ fi
 echo "Setting up ${CONTAINER} from ${IMAGE}"
 
 # --- Pull the image ---
-if [[ "${FORCE_PULL}" == true ]] || ! podman image exists "${IMAGE}"; then
+# Always pull by default: the image is published from CI, and reusing a
+# stale copy locally is how you end up debugging an image that was fixed
+# days ago.
+if [[ "${PULL}" == true ]]; then
 	echo "Pulling ${IMAGE}..."
 	podman pull "${IMAGE}"
 else
-	echo "Image ${IMAGE} is already present, skipping pull."
+	echo "Skipping pull of ${IMAGE}, using the local copy."
+fi
+
+digest=$(podman image inspect "${IMAGE}" --format '{{.Digest}}' 2>/dev/null || true)
+if [[ -n "${digest}" ]]; then
+	echo "Image digest: ${digest}"
 fi
 
 # --- Remove the symlinks left by the older container ---
