@@ -13,6 +13,27 @@
     outputHash = "0ni43sag0mgjsalk0a0pzglrcqhsvbxakw9g35q7l1dwivmp87lq";
     outputHashAlgo = "sha256";
   };
+
+  # The nix daemon builds as the nixbld users, so the image needs them. A
+  # file in a later layer replaces the same file from the base image, so
+  # writing /etc/passwd here would leave the container without a root user
+  # and it could not even start:
+  #
+  #   unable to find user root: no matching entries in passwd file
+  #
+  # So take the passwd and group of the base image and add the build users
+  # to those.
+  baseEtc = pkgs.runCommand "fedora-etc-with-nixbld" {nativeBuildInputs = [pkgs.jq];} ''
+    mkdir -p $out/etc
+    tar -xf ${fedoraToolbox} manifest.json
+    layer=$(jq -r '.[0].Layers[0]' manifest.json)
+    tar -xf ${fedoraToolbox} -O "$layer" | tar -xf - -C $out etc/passwd etc/group
+
+    echo "nixbld:x:30000:" >> $out/etc/group
+    for i in $(seq 1 32); do
+      echo "nixbld''${i}:x:$((30000 + i)):30000:Nix build user:/var/empty:/noshell" >> $out/etc/passwd
+    done
+  '';
 in
   pkgs.dockerTools.streamLayeredImage {
     name = "local/nix-distrobox";
@@ -20,13 +41,15 @@ in
 
     fromImage = fedoraToolbox;
 
-    contents = with pkgs; [
-      kdePackages.kwallet
-      kdePackages.kwalletmanager
-      libsecret
-      nix
-      pipewire
-    ];
+    contents =
+      (with pkgs; [
+        kdePackages.kwallet
+        kdePackages.kwalletmanager
+        libsecret
+        nix
+        pipewire
+      ])
+      ++ [baseEtc];
 
     fakeRootCommands = ''
       # The Nix layers link the binaries of their packages into /bin and /lib,
@@ -56,12 +79,6 @@ in
 
       echo "experimental-features = nix-command flakes" > ./etc/nix/nix.conf
       echo "trusted-users = root @wheel" >> ./etc/nix/nix.conf
-
-      # The nix daemon builds as these users, the same ids NixOS uses.
-      echo "nixbld:x:30000:" >> ./etc/group
-      for i in $(seq 1 32); do
-        echo "nixbld''${i}:x:$((30000 + i)):30000:Nix build user:/var/empty:/noshell" >> ./etc/passwd
-      done
 
       # --- nix-daemon ---
       mkdir -p ./etc/systemd/system/multi-user.target.wants
