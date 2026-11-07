@@ -1,6 +1,8 @@
 {pkgs, ...} @ args: {
   proxmox-templates = pkgs.callPackage ./proxmox-templates.nix args;
 
+  distrobox = pkgs.callPackage ./distrobox.nix args;
+
   # TODO: Remove?
   # toolbx-image = pkgs.callPackage ./toolbx-image.nix args;
 
