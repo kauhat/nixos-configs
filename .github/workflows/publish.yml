@@ -92,6 +92,7 @@ jobs:
             test -e /etc/pam.d/sudo || { echo "missing PAM config for sudo"; exit 1; }
             test -e /etc/systemd/system/multi-user.target.wants/nix-daemon.service || { echo "missing nix-daemon.service"; exit 1; }
             test -e /etc/nix/nix.conf || { echo "missing nix.conf"; exit 1; }
+            grep -q "^root:" /etc/passwd || { echo "no root user"; exit 1; }
             grep -q "^nixbld1:" /etc/passwd || { echo "missing nixbld build users"; exit 1; }
             echo "image verification passed"
           '
