@@ -1,4 +1,4 @@
-name: Build and Publish Distrobox container
+name: Build and Publish Distrobox container (nix buildLayeredImage)
 
 on:
   push:
