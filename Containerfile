@@ -1,4 +1,4 @@
-FROM fedora-toolbox:latest
+FROM quay.io/fedora/fedora-toolbox:latest
 
 # Install systemd dependencies, base utilities, and Fedora-specific packages
 RUN dnf install -y \
