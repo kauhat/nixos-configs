@@ -15,9 +15,11 @@ RUN dnf install -y \
     git \
     fish \
     zsh \
+    util-linux \
     && dnf clean all
 
-RUN sudo systemctl enable nix-daemon.service nix-daemon.socket
+# Enable nix-daemon systemd services
+RUN systemctl enable nix-daemon.service nix-daemon.socket
 
 # Globally enable flakes and the nix-command CLI interface
 RUN mkdir -p /etc/nix \
@@ -32,3 +34,5 @@ RUN groupadd -f wheel \
 # Pre-configure dynamic linker to discover Distrobox-mounted host Nvidia GL drivers
 RUN echo "/usr/lib64" > /etc/ld.so.conf.d/nvidia-distrobox.conf \
     && ldconfig
+
+CMD ["/usr/lib/systemd/systemd"]
