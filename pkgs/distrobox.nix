@@ -18,7 +18,7 @@ in
 
     fromImage = fedoraToolbox;
     diskSize = 4096;
-    compressImage = false;
+    # compressImage = false;
 
     runAsRoot = ''
       #!${pkgs.stdenv.shell}
