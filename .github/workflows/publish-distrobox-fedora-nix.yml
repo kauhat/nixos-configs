@@ -1,0 +1,125 @@
+name: Build and Publish Distrobox container (fedora-toolbox based)
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "Containerfile"
+      - ".github/workflows/publish-distrobox-fedora-nix.yml"
+  pull_request:
+    paths:
+      - "Containerfile"
+      - ".github/workflows/publish-distrobox-fedora-nix.yml"
+  schedule:
+    # Runs at 00:00 UTC every Sunday
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: distrobox-fedora-nix
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-fedora
+  cancel-in-progress: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ ! -f /etc/containers/policy.json ]]; then
+            mkdir -p /etc/containers
+            printf '{"default":[{"type":"insecureAcceptAnything"}]}' > /etc/containers/policy.json
+          fi
+          echo "$GHCR_TOKEN" | skopeo login "$REGISTRY" --username "${{ github.actor }}" --password-stdin
+
+      - name: Build image with Podman
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="$REGISTRY/$REPO_OWNER/$IMAGE_NAME:latest"
+
+          podman build -t "$IMAGE_TAG" -f Containerfile .
+
+      - name: Verify image layout
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="$REGISTRY/$REPO_OWNER/$IMAGE_NAME:latest"
+
+          podman run --rm --entrypoint /bin/sh "$IMAGE_TAG" -c '
+            set -e
+            for tool in grep sed awk find findmnt script mount usermod systemctl stat readlink nix dnf; do
+              command -v "$tool" > /dev/null || { echo "missing tool: $tool"; exit 1; }
+            done
+            for unit in basic.target sysinit.target multi-user.target sockets.target; do
+              test -e "/usr/lib/systemd/system/$unit" || { echo "missing unit: $unit"; exit 1; }
+            done
+            test -e /bin/sh || { echo "missing /bin/sh"; exit 1; }
+            test -e /usr/lib/systemd/systemd || { echo "missing systemd"; exit 1; }
+            test -e /etc/pam.d/sudo || { echo "missing PAM config for sudo"; exit 1; }
+            test -e /etc/systemd/system/multi-user.target.wants/nix-daemon.service || { echo "missing nix-daemon.service"; exit 1; }
+            test -e /etc/nix/nix.conf || { echo "missing nix.conf"; exit 1; }
+            grep -q "^root:" /etc/passwd || { echo "no root user"; exit 1; }
+            echo "image layout verification passed"
+          '
+
+      - name: Verify image systemd integration
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="$REGISTRY/$REPO_OWNER/$IMAGE_NAME:latest"
+
+          podman run --rm --entrypoint /usr/bin/systemctl "$IMAGE_TAG" \
+            --root=/ list-unit-files | grep -q "^nix-daemon.service" || {
+            echo "nix-daemon.service is not loadable"; exit 1; }
+
+          podman run --rm --entrypoint /usr/bin/systemctl "$IMAGE_TAG" \
+            --root=/ enable nix-daemon.service nix-daemon.socket || {
+            echo "cannot enable the nix units"; exit 1; }
+
+          echo "distrobox checks passed"
+
+      - name: Push to GHCR
+        if: github.event_name != 'pull_request'
+        env:
+          IMAGE_SHA: ${{ github.sha }}
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_ID=$REGISTRY/$REPO_OWNER/$IMAGE_NAME
+          SOURCE_TAG="$IMAGE_ID:latest"
+
+          # Push both :latest and the commit SHA tag directly from Podman
+          podman push "$SOURCE_TAG" "$IMAGE_ID:latest"
+          podman push "$SOURCE_TAG" "$IMAGE_ID:$IMAGE_SHA"
+
+      - name: Verify published GHCR image
+        if: github.event_name != 'pull_request'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_ID=$REGISTRY/$REPO_OWNER/$IMAGE_NAME
+
+          token=$(curl -fsS -u "${{ github.actor }}:$GHCR_TOKEN" \
+            "https://$REGISTRY/token?scope=repository:$REPO_OWNER/$IMAGE_NAME:pull" \
+            | jq -r '.token')
+
+          manifest=$(curl -fsS -H "Authorization: Bearer $token" \
+            -H "Accept: application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json" \
+            "https://$REGISTRY/v2/$REPO_OWNER/$IMAGE_NAME/manifests/latest")
+
+          total=$(echo "$manifest" | jq -r '[.layers[]?.size] | add // 0')
+          echo "Pull size of $IMAGE_ID:latest: $((total / 1000000)) MB"
+          echo "published classic image verified successfully"

@@ -1,4 +1,4 @@
-name: Build and Publish Distrobox
+name: Build and Publish Distrobox container
 
 on:
   push:
@@ -20,7 +20,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: nix-distrobox
+  IMAGE_NAME: distrobox-nix
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

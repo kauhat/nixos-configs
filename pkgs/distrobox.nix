@@ -1,7 +1,7 @@
 {
   lib,
   pkgs,
-  name ? "ghcr.io/kauhat/nix-distrobox",
+  name ? "ghcr.io/kauhat/distrobox-nix",
   tag ? "latest",
   ...
 }: let
