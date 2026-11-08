@@ -35,8 +35,11 @@ jobs:
 
       - name: Build image with Podman
         run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="$REGISTRY/$REPO_OWNER/$IMAGE_NAME:latest"
+
           podman build \
-            --tag ghcr.io/kauhat/nix-fedora-distrobox:latest \
+            --tag "$IMAGE_TAG" \
             -f Containerfile .
 
       # - name: Verify image layout
@@ -71,4 +74,7 @@ jobs:
       - name: Push to GHCR
         if: github.event_name != 'pull_request'
         run: |
-          podman push ghcr.io/kauhat/nix-fedora-distrobox:latest
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="$REGISTRY/$REPO_OWNER/$IMAGE_NAME:latest"
+
+          podman push "$IMAGE_TAG"
