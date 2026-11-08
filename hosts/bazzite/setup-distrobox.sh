@@ -122,16 +122,44 @@ if [[ -n "${digest}" ]]; then
 	echo "Image digest: ${digest}"
 fi
 
-# --- Remove the symlinks left by the older container ---
-# The volumes of nix-toolbox-next mount real directories, so the symlinks
-# have to go, otherwise the mount lands on a symlink instead.
-echo "Cleaning up symlinks in ${TOOLBOX}"
-for link in .ssh Dev Downloads Notes; do
-	if [[ -L "${TOOLBOX}/${link}" ]]; then
-		rm -f "${TOOLBOX:?}/${link}"
-		echo "Removed symlink ${TOOLBOX}/${link}"
+# --- Clean up the old volume mounts ---
+# The container used to mount the host directories into the toolbox home as
+# volumes. Those mounts leave behind empty directories with the wrong owner,
+# and the symlinks from the ini cannot be created in their place. Remove
+# them, so that the ini can create the symlinks.
+echo "Cleaning up stale mount points in ${TOOLBOX}"
+for dir in .ssh Dev Downloads Notes; do
+	path="${TOOLBOX}/${dir}"
+
+	# A symlink is what we want, so it only needs to be pointed at the
+	# right place.
+	if [[ -L "${path}" ]]; then
+		continue
+	fi
+
+	# A directory means a volume was mounted there before. It is empty
+	# apart from the symlink the ini tried to create, so it is safe to
+	# remove.
+	if [[ -d "${path}" ]]; then
+		rm -rf "${path:?}" && echo "Removed ${path}"
 	fi
 done
+
+# --- Work around a stale TMPDIR ---
+# distrobox assemble writes a temporary file to $TMPDIR. A TMPDIR left
+# behind by a nix shell points at a directory that has already been removed,
+# so the temporary file cannot be created and the container is not created
+# at all:
+#
+#   distrobox-assemble: line 696: /tmp/nix-shell.XXXX/tmp.XXXX: No such
+#   file or directory
+#
+# Drop it when it no longer exists, so that the default temporary directory
+# is used instead.
+if [[ -n "${TMPDIR:-}" && ! -d "${TMPDIR}" ]]; then
+	echo "Unsetting stale TMPDIR=${TMPDIR}"
+	unset TMPDIR
+fi
 
 # --- Create the container ---
 echo "Creating ${CONTAINER}"

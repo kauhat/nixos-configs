@@ -97,6 +97,52 @@ jobs:
             echo "image verification passed"
           '
 
+      - name: Verify image can be used as a distrobox
+        # The three checks below cover the failures that kept the container
+        # from being set up:
+        #
+        #   - systemd could not load the nix units, so "systemctl enable" in
+        #     the init hook failed and aborted the setup
+        #   - the nixbld group had no members, so the daemon could not build
+        #   - /etc/passwd and /etc/group linked into the store, which the
+        #     shared nix volume hides, so the container had no users at all
+        run: |
+          # The units have to be loadable, not just enabled: systemd only
+          # finds units in its search paths, and the .wants directories
+          # alone do not make them loadable.
+          podman run --rm --entrypoint /usr/bin/systemctl local/nix-distrobox:latest \
+            --root=/ list-unit-files | grep -q "^nix-daemon.service" || {
+            echo "nix-daemon.service is not loadable"; exit 1; }
+          podman run --rm --entrypoint /usr/bin/systemctl local/nix-distrobox:latest \
+            --root=/ enable nix-daemon.service nix-daemon.socket || {
+            echo "cannot enable the nix units"; exit 1; }
+
+          # The daemon needs members in the build users group, otherwise it
+          # refuses to build anything.
+          podman run --rm --entrypoint /bin/sh local/nix-distrobox:latest -c '
+            set -e
+            test ! -L /etc/passwd || { echo "/etc/passwd links into the store"; exit 1; }
+            test ! -L /etc/group || { echo "/etc/group links into the store"; exit 1; }
+            grep -q "^nixbld:x:30000:nixbld1," /etc/group || {
+              echo "the nixbld group has no members"; exit 1; }
+            echo "distrobox checks passed"
+          '
+
+      - name: Verify the image can build
+        # The daemon builds as the nixbld users, so the image has to be able
+        # to build a derivation, not just run the nix command.
+        run: |
+          podman run --rm --entrypoint /bin/sh local/nix-distrobox:latest -c '
+            set -e
+            nix build --no-link --expr "derivation {
+              name = \"check\";
+              system = \"x86_64-linux\";
+              builder = \"/bin/sh\";
+              args = [\"-c\" \"echo ok > \$out\"];
+            }"
+            echo "the image can build"
+          '
+
       - name: Push to GHCR
         if: github.event_name != 'pull_request'
         env:
