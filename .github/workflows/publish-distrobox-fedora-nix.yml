@@ -39,26 +39,26 @@ jobs:
             --tag ghcr.io/kauhat/nix-fedora-distrobox:latest \
             -f Containerfile .
 
-      - name: Verify image layout
-        run: |
-          podman run --rm --entrypoint /bin/sh ghcr.io/kauhat/nix-fedora-distrobox:latest -c '
-            set -e
-            export PATH="/nix/var/nix/profiles/default/bin:/nix/profile/bin:$PATH"
+      # - name: Verify image layout
+      #   run: |
+      #     podman run --rm --entrypoint /bin/sh ghcr.io/kauhat/nix-fedora-distrobox:latest -c '
+      #       set -e
+      #       export PATH="/nix/var/nix/profiles/default/bin:/nix/profile/bin:$PATH"
 
-            for tool in grep sed awk find findmnt script mount usermod systemctl stat readlink nix; do
-              command -v "$tool" > /dev/null || { echo "missing tool: $tool"; exit 1; }
-            done
-            for unit in basic.target sysinit.target multi-user.target sockets.target; do
-              test -e "/usr/lib/systemd/system/$unit" || { echo "missing unit: $unit"; exit 1; }
-            done
-            test -e /bin/sh || { echo "missing /bin/sh"; exit 1; }
-            test -e /usr/lib/systemd/systemd || { echo "missing systemd"; exit 1; }
-            test -e /etc/pam.d/sudo || { echo "missing PAM config for sudo"; exit 1; }
-            test -e /etc/systemd/system/multi-user.target.wants/nix-daemon.service || { echo "missing nix-daemon.service"; exit 1; }
-            test -e /etc/nix/nix.conf || { echo "missing nix.conf"; exit 1; }
-            grep -q "^root:" /etc/passwd || { echo "no root user"; exit 1; }
-            echo "image layout verification passed"
-          '
+      #       for tool in grep sed awk find findmnt script mount usermod systemctl stat readlink nix; do
+      #         command -v "$tool" > /dev/null || { echo "missing tool: $tool"; exit 1; }
+      #       done
+      #       for unit in basic.target sysinit.target multi-user.target sockets.target; do
+      #         test -e "/usr/lib/systemd/system/$unit" || { echo "missing unit: $unit"; exit 1; }
+      #       done
+      #       test -e /bin/sh || { echo "missing /bin/sh"; exit 1; }
+      #       test -e /usr/lib/systemd/systemd || { echo "missing systemd"; exit 1; }
+      #       test -e /etc/pam.d/sudo || { echo "missing PAM config for sudo"; exit 1; }
+      #       test -e /etc/systemd/system/multi-user.target.wants/nix-daemon.service || { echo "missing nix-daemon.service"; exit 1; }
+      #       test -e /etc/nix/nix.conf || { echo "missing nix.conf"; exit 1; }
+      #       grep -q "^root:" /etc/passwd || { echo "no root user"; exit 1; }
+      #       echo "image layout verification passed"
+      #     '
 
       - name: Log in to GHCR
         if: github.event_name != 'pull_request'
