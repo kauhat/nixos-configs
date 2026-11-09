@@ -1,11 +1,6 @@
 {pkgs, ...}: let
-  hostPkgs =
-    if pkgs.system == builtins.currentSystem
-    then pkgs
-    else import pkgs.path {system = builtins.currentSystem;};
-
   fromJSON5 = json5String: let
-    convertedJson = hostPkgs.runCommand "converted.json" {
+    convertedJson = pkgs.runCommand "converted.json" {
       inherit json5String;
       nativeBuildInputs = [pkgs.python3Packages.json5];
       passAsFile = ["json5String"];
