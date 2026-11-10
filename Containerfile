@@ -1,6 +1,6 @@
 FROM quay.io/fedora/fedora-toolbox:latest
 
-RUN \
+RUN true \
     # Install systemd dependencies, base utilities, and Fedora-specific packages
     && dnf install -y \
     systemd \
@@ -17,7 +17,7 @@ RUN \
     \
     && dnf clean all
 
-RUN \
+RUN true \
     # Pre-configure dynamic linker to discover Distrobox-mounted host Nvidia GL drivers
     && echo "/usr/lib64" > /etc/ld.so.conf.d/nvidia-distrobox.conf \
     && ldconfig \
@@ -28,7 +28,7 @@ RUN \
     && chmod 777 /nix/var/nix/daemon-socket \
     \
     # Globally enable flakes and the nix-command CLI interface
-    mkdir -p /etc/nix \
+    && mkdir -p /etc/nix \
     && echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf \
     && echo "trusted-users = root @wheel" >> /etc/nix/nix.conf \
     \
