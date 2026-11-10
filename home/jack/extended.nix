@@ -20,6 +20,8 @@
     # Nix/NixOS
     alejandra # Nix code formatting
     nil # Nix language server
+    statix
+    deadnix
     nix-melt
 
     # Development and Productivity Tools
