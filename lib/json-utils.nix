@@ -25,9 +25,6 @@
       }
     '';
 
-    # Parse the sample string via fromJSON5
-    parsedResult = fromJSON5 sampleJson5;
-
     # Expected equivalent Nix data structure
     expectedResult = {
       unquotedKey = "single quoted string";
