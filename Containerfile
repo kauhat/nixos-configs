@@ -40,8 +40,10 @@ RUN true \
     && systemctl enable nix-daemon.service nix-daemon.socket
 
 # Configure nested rootless Podman defaults
-RUN mkdir -p /etc/containers \
-    && printf '[engine]\ncgroup_manager = "cgroupfs"\nevents_logger = "file"\n[network]\ndefault_rootless_network_cmd = "slirp4netns"\n' > /etc/containers/containers.conf \
+RUN true \
+    # Configure nested rootless Podman defaults and setuid helpers
+    && mkdir -p /etc/containers \
+    && printf '[engine]\ncgroup_manager = "cgroupfs"\nevents_logger = "file"\n' > /etc/containers/containers.conf \
     && chmod 4755 /usr/bin/newuidmap /usr/bin/newgidmap
 
 CMD ["/usr/lib/systemd/systemd"]
