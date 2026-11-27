@@ -17,7 +17,6 @@ RUN true \
     podman \
     fuse-overlayfs \
     slirp4netns \
-    shadow-utils \
     \
     && dnf clean all
 
@@ -39,11 +38,10 @@ RUN true \
     # Enable nix-daemon systemd services
     && systemctl enable nix-daemon.service nix-daemon.socket
 
-# Configure nested rootless Podman defaults
 RUN true \
-    # Configure nested rootless Podman defaults and setuid helpers
+    # Configure nested single-UID rootless Podman
     && mkdir -p /etc/containers \
     && printf '[engine]\ncgroup_manager = "cgroupfs"\nevents_logger = "file"\n' > /etc/containers/containers.conf \
-    && chmod 4755 /usr/bin/newuidmap /usr/bin/newgidmap
+    && printf '[storage]\ndriver = "overlay"\n[storage.options]\nignore_chown_errors = "true"\n' > /etc/containers/storage.conf
 
 CMD ["/usr/lib/systemd/systemd"]
